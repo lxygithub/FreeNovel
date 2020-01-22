@@ -1,0 +1,32 @@
+package cn.mewlxy.novel.db
+
+import androidx.room.*
+import cn.mewlxy.novel.model.BookModel
+import cn.mewlxy.novel.model.ChapterModel
+
+/**
+ * description：
+ * author：luoxingyuan
+ */
+@Dao
+interface ChapterDao {
+    @Query("SELECT * FROM cached_chapters WHERE bookUrl=:bookUrl ORDER  BY `index` ASC")
+    fun getAllByBookUrl(bookUrl: String): List<ChapterModel>?
+
+    @Query("SELECT * FROM cached_chapters WHERE url=:url")
+    fun getChapter(url: String): ChapterModel?
+
+    @Query("SELECT content FROM cached_chapters WHERE url=:url")
+    fun getChapterContent(url: String): String?
+
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    fun inserts(vararg chapters: ChapterModel)
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    fun updates(vararg chapters: ChapterModel)
+
+
+    @Query("DELETE FROM cached_chapters WHERE bookUrl=:bookUrl")
+    fun deleteBookByBookUrl(bookUrl: String)
+}

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/title"
+        layout="@layout/title_view" />
+
+    <ImageView
+        android:id="@+id/iv_cover"
+        android:layout_width="100dp"
+        android:layout_height="120dp"
+        android:layout_marginLeft="16dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/pic_placeholder"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title" />
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:textColor="#000"
+        android:textSize="18dp"
+        app:layout_constraintLeft_toRightOf="@+id/iv_cover"
+        app:layout_constraintTop_toTopOf="@+id/iv_cover"
+        tools:text="傲视电渗" />
+
+    <TextView
+        android:id="@+id/tv_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="10dp"
+        android:textColor="#7e7e7e"
+        android:textSize="16dp"
+        app:layout_constraintLeft_toRightOf="@+id/iv_cover"
+        app:layout_constraintTop_toBottomOf="@+id/tv_name"
+        tools:text="作者: 寂小贼" />
+
+    <TextView
+        android:id="@+id/tv_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="10dp"
+        android:textColor="#7e7e7e"
+        android:textSize="16dp"
+        app:layout_constraintLeft_toRightOf="@+id/iv_cover"
+        app:layout_constraintTop_toBottomOf="@+id/tv_author"
+        tools:text="类别: 玄幻" />
+
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="10dp"
+        android:textColor="#7e7e7e"
+        android:textSize="16dp"
+        app:layout_constraintLeft_toRightOf="@+id/iv_cover"
+        app:layout_constraintTop_toBottomOf="@+id/tv_type"
+        tools:text="状态: 完结" />
+
+    <TextView
+        android:id="@+id/tv_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="10dp"
+        android:textColor="#7e7e7e"
+        android:textSize="14dp"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iv_cover"
+        tools:text="废柴少年得无上传承,获逆天神脉,学绝世神功,掌握超绝丹术,这使他..." />
+
+    <TextView
+        android:id="@+id/tv_chapter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@color/gray_bg"
+        android:drawableLeft="@drawable/vertical_bar"
+        android:drawablePadding="10dp"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingTop="10dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="10dp"
+        android:text="章节列表"
+        android:textColor="@color/black_text"
+        android:textSize="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/tv_desc" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_chapters"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/tv_add_shelf"
+        app:layout_constraintTop_toBottomOf="@+id/tv_chapter" />
+
+    <TextView
+        android:id="@+id/tv_add_shelf"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="加入书架"
+        android:textColor="@color/black_text"
+        android:textSize="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/tv_read" />
+
+    <TextView
+        android:id="@+id/tv_read"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/colorAccent"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="开始阅读"
+        android:textColor="@color/white"
+        android:textSize="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/tv_add_shelf"
+        app:layout_constraintRight_toRightOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
