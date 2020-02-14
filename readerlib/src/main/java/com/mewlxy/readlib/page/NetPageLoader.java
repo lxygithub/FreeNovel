@@ -200,7 +200,7 @@ public class NetPageLoader extends PageLoader {
         super.saveRecord();
         if (mCollBook != null && isChapterListPrepare) {
             //表示当前CollBook已经阅读
-            mCollBook.setUpdate(false);
+            mCollBook.setUpdate(0);
             mCollBook.setLastRead(String.valueOf(System.currentTimeMillis()));
             //直接更新
             bookRepository.saveCollBook(mCollBook);

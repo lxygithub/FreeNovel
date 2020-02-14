@@ -11,7 +11,7 @@ import cn.mewlxy.novel.model.ChapterModel
 @Dao
 interface ChapterDao {
     @Query("SELECT * FROM cached_chapters WHERE bookUrl=:bookUrl AND `index`>=:start ORDER  BY `index` ASC LIMIT :limit")
-    fun getChaptersByBookUrl(bookUrl: String, start: Int = 0, limit: Int = 100): List<ChapterModel>
+    fun getChaptersByBookUrl(bookUrl: String, start: Int = 0, limit: Int = 100): MutableList<ChapterModel>
 
     @Query("SELECT * FROM cached_chapters WHERE url=:url")
     fun getChapter(url: String): ChapterModel?

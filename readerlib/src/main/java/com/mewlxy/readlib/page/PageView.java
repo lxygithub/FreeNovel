@@ -340,7 +340,7 @@ public class PageView extends View {
             return mPageLoader;
         }
         // 根据书籍类型，获取具体的加载器
-        if (collBook.isLocal()) {
+        if (collBook.isLocal()==1) {
             mPageLoader = new LocalPageLoader(this, collBook,bookRepository);
         } else {
             mPageLoader = new NetPageLoader(this, collBook,bookRepository);

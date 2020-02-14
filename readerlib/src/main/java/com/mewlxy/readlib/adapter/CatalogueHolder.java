@@ -12,7 +12,7 @@ import com.mewlxy.readlib.utlis.StringUtils;
 
 import androidx.core.content.ContextCompat;
 
-public class CategoryHolder extends ViewHolderImpl<ChapterBean> {
+public class CatalogueHolder extends ViewHolderImpl<ChapterBean> {
 
     private TextView mTvChapter;
 
@@ -41,7 +41,7 @@ public class CategoryHolder extends ViewHolderImpl<ChapterBean> {
 
     @Override
     protected int getItemLayoutId() {
-        return R.layout.rlv_item_category;
+        return R.layout.rlv_item_catalogue;
     }
 
     public void setSelectedChapter(){

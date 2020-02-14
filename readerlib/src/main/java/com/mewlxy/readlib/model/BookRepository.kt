@@ -1,0 +1,59 @@
+package com.mewlxy.readlib.model
+
+import com.mewlxy.readlib.Constant
+import com.mewlxy.readlib.interfaces.OnChaptersListener
+import com.mewlxy.readlib.utlis.FileUtils
+import com.mewlxy.readlib.utlis.IOUtils.close
+import java.io.*
+
+/**
+ * Created by newbiechen on 17-5-8.
+ * 存储关于书籍内容的信息(CollBook(收藏书籍),BookChapter(书籍列表),ChapterInfo(书籍章节),BookRecord(记录),BookSignTable书签)
+ */
+abstract class BookRepository {
+    abstract fun saveBookRecord(mBookRecord: ReadRecordBean?)
+    abstract fun getBookRecord(bookId: String?): ReadRecordBean?
+    /**
+     * 获取章节列表
+     */
+    abstract fun chapterBeans(mCollBook: BookBean, onChaptersListener: OnChaptersListener, start: Int = 0)
+
+    /**
+     * 获取章节内容
+     */
+    abstract fun requestChapterContents(mCollBook: BookBean, requestChapters: List<ChapterBean?>, onChaptersListener: OnChaptersListener)
+
+    abstract fun saveCollBook(mCollBook: BookBean?)
+    abstract fun saveBookChaptersWithAsync(bookChapterBeanList: List<ChapterBean?>?, mCollBook: BookBean?)
+    /**
+     * 存储章节
+     *
+     * @param folderName
+     * @param fileName
+     * @param content
+     */
+    fun saveChapterInfo(folderName: String, fileName: String, content: String) {
+        val filePath = (Constant.BOOK_CACHE_PATH + folderName
+                + File.separator + fileName + FileUtils.SUFFIX_NB)
+        if (File(filePath).exists()) {
+            return
+        }
+        val str = content.replace("\\\\n\\\\n".toRegex(), "\n")
+        val file = BookManager.getBookFile(folderName, fileName)
+        //获取流并存储
+        var writer: Writer? = null
+        try {
+            writer = BufferedWriter(FileWriter(file))
+            writer.write(str)
+            writer.flush()
+        } catch (e: IOException) {
+            e.printStackTrace()
+            close(writer)
+        }
+    }
+
+    /**
+     * 加入书架
+     */
+    abstract fun saveCollBookWithAsync(mCollBook: BookBean)
+}

@@ -157,6 +157,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:orientation="vertical"
+        android:background="@color/read_menu_color"
         android:paddingTop="16dp"
         android:paddingBottom="16dp">
 

@@ -10,10 +10,13 @@ import cn.mewlxy.novel.model.BookModel
 @Dao
 interface BookDao {
     @Query("SELECT * FROM my_shelf")
-    fun getAll(): List<BookModel>?
+    fun getAll(): List<BookModel>
+
+    @Query("SELECT * FROM my_shelf WHERE `favorite`== 1")
+    fun getAllFavorite(): List<BookModel>
 
     @Query("SELECT * FROM my_shelf WHERE name IN (:names)")
-    fun loadAllByNames(names: List<String>): List<BookModel>?
+    fun loadAllByNames(names: List<String>): List<BookModel>
 
     @Query("SELECT * FROM my_shelf WHERE name LIKE '%' || :bookName || '%'")
     fun findByName(bookName: String): List<BookModel>
@@ -26,6 +29,9 @@ interface BookDao {
 
     @Query("SELECT * FROM my_shelf WHERE url = :bookUrl")
     fun queryByUrl(bookUrl: String): BookModel?
+
+    @Query("SELECT * FROM my_shelf WHERE url = :bookUrl AND `favorite`==1")
+    fun queryFavoriteByUrl(bookUrl: String): BookModel?
 
     @Delete
     fun delete(book: BookModel)

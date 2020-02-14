@@ -12,6 +12,7 @@ import android.view.View.*
 import android.view.WindowManager
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.AbsListView
 import android.widget.SeekBar
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -24,7 +25,7 @@ import com.mewlxy.readlib.R
 import com.mewlxy.readlib.adapter.MarkAdapter
 import com.mewlxy.readlib.page.ReadSettingManager
 import com.mewlxy.readlib.dialog.ReadSettingDialog
-import com.mewlxy.readlib.adapter.CategoryAdapter
+import com.mewlxy.readlib.adapter.CatalogueAdapter
 import com.mewlxy.readlib.base.NovelBaseActivity
 import com.mewlxy.readlib.interfaces.OnChaptersListener
 import com.mewlxy.readlib.model.*
@@ -36,13 +37,14 @@ import kotlinx.android.synthetic.main.layout_download.*
 import kotlinx.android.synthetic.main.layout_light.*
 import kotlinx.android.synthetic.main.layout_read_mark.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * 阅读页📕
  */
 open class NovelReadActivity : NovelBaseActivity() {
 
-    private lateinit var mCategoryAdapter: CategoryAdapter
+    private lateinit var mCategoryAdapter: CatalogueAdapter
     private val mChapters = mutableListOf<ChapterBean>()
     private lateinit var mCurrentChapter: ChapterBean //当前章节
     private var currentChapter = 0
@@ -55,12 +57,12 @@ open class NovelReadActivity : NovelBaseActivity() {
     private var mBottomOutAnim: Animation? = null
 
     private lateinit var mSettingDialog: ReadSettingDialog
-    private var isCollected = false // isFromSDCard
     private var isNightMode = false
     private var isFullScreen = false
 
     private lateinit var mCollBook: BookBean
     private lateinit var mBookId: String
+    private var chapterStart = 0
 
     @SuppressLint("HandlerLeak")
     private val mHandler = object : Handler() {
@@ -91,7 +93,6 @@ open class NovelReadActivity : NovelBaseActivity() {
 
     override fun initView() {
         mCollBook = intent.getSerializableExtra(EXTRA_COLL_BOOK) as BookBean
-        isCollected = intent.getBooleanExtra(EXTRA_IS_COLLECTED, false)
         mBookId = mCollBook.url
         // 如果 API < 18 取消硬件加速
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -138,27 +139,38 @@ open class NovelReadActivity : NovelBaseActivity() {
             toggleMenu(false)
         }
 
+        requestChapters()
+    }
+
+    /**
+     * 获取章节列表
+     */
+    private fun requestChapters(start: Int = 0) {
         bookRepository.chapterBeans(mCollBook, object : OnChaptersListener {
             override fun onStart() {
             }
 
 
             override fun onSuccess(chapterBeans: MutableList<ChapterBean>) {
-                mPageLoader.collBook.chapters = chapterBeans
+                if (chapterStart == 0) {
+                    mPageLoader.collBook.chapters = chapterBeans
+                } else {
+                    mPageLoader.collBook.chapters.addAll(chapterBeans)
+                }
+                chapterStart += chapterBeans.size
                 mPageLoader.refreshChapterList()
+
             }
 
             override fun onError(errorMsg: String) {
             }
 
-        })
-
-
+        }, start)
     }
 
     override fun initData() {
         tv_book_name.text = mCollBook.name
-        mCategoryAdapter = CategoryAdapter()
+        mCategoryAdapter = CatalogueAdapter()
         rlv_list.adapter = mCategoryAdapter
         rlv_list.isFastScrollEnabled = true
         rlv_mark.layoutManager = LinearLayoutManager(this)
@@ -170,6 +182,21 @@ open class NovelReadActivity : NovelBaseActivity() {
         isFullScreen = ReadSettingManager.getInstance().isFullScreen
         toolbar.setNavigationOnClickListener { finish() }
         read_setting_sb_brightness.progress = ReadSettingManager.getInstance().brightness
+        rlv_list.setOnScrollListener(object : AbsListView.OnScrollListener {
+            override fun onScroll(view: AbsListView?, firstVisibleItem: Int, visibleItemCount: Int, totalItemCount: Int) {
+
+            }
+
+            override fun onScrollStateChanged(view: AbsListView?, scrollState: Int) {
+                if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+                    if (view?.lastVisiblePosition == view?.count!! - 1) {
+                        //加载更多
+                        requestChapters(chapterStart)
+                    }
+                }
+            }
+
+        })
         mPageLoader.setOnPageChangeListener(
                 object : PageLoader.OnPageChangeListener {
 
@@ -190,9 +217,17 @@ open class NovelReadActivity : NovelBaseActivity() {
 
                             override fun onSuccess(chapterBeans: MutableList<ChapterBean>) {
                                 mHandler.sendEmptyMessage(WHAT_CATEGORY)
+                                if (mPageLoader.pageStatus == PageLoader.STATUS_LOADING) {
+                                    mHandler.sendEmptyMessage(WHAT_CHAPTER)
+                                }
+                                // 当完成章节的时候，刷新列表
+                                mCategoryAdapter.notifyDataSetChanged()
                             }
 
                             override fun onError(errorMsg: String) {
+                                if (mPageLoader.pageStatus == PageLoader.STATUS_LOADING) {
+                                    mPageLoader.chapterError()
+                                }
                             }
                         })
                     }
@@ -318,9 +353,9 @@ open class NovelReadActivity : NovelBaseActivity() {
         }
 
         tv_cache.setOnClickListener {
-            if (!isCollected) { //没有收藏 先收藏 然后弹框
+            if (mCollBook.favorite==0) { //没有收藏 先收藏 然后弹框
                 //设置为已收藏
-                isCollected = true
+                mCollBook.favorite = 1
                 //设置阅读时间
                 mCollBook.lastRead = System.currentTimeMillis().toString()
 //                bookRepository().saveCollBookWithAsync(mCollBook)
@@ -386,7 +421,7 @@ open class NovelReadActivity : NovelBaseActivity() {
             tvBookReadMode.setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null)
             cl_layout.setBackgroundColor(ContextCompat.getColor(this, R.color.read_bg_night))
         } else {
-            tvBookReadMode.text = resources.getString(R.string.book_read_mode_day)
+            tvBookReadMode.text = resources.getString(R.string.book_read_mode_night)
             val drawable = ContextCompat.getDrawable(this, R.drawable.ic_read_menu_night)
             tvBookReadMode.setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null)
             cl_layout.setBackgroundColor(
@@ -502,17 +537,17 @@ open class NovelReadActivity : NovelBaseActivity() {
         }
         Log.e(TAG, "onBackPressed: " + mCollBook.chapters.isEmpty())
 
-        if (!mCollBook.isLocal && !isCollected && mCollBook.chapters.isNotEmpty()) {
+        if (mCollBook.favorite==0 && mCollBook.chapters.isNotEmpty()) {
             val alertDialog = AlertDialog.Builder(this)
                     .setTitle(getString(R.string.add_book))
                     .setMessage(getString(R.string.like_book))
                     .setPositiveButton(getString(R.string.sure)) { dialog, which ->
                         //设置为已收藏
-                        isCollected = true
+                        mCollBook.favorite = 1
                         //设置阅读时间
                         mCollBook.lastRead = System.currentTimeMillis().toString()
 
-//                        bookRepository().saveCollBookWithAsync(mCollBook)
+                        bookRepository.saveCollBookWithAsync(mCollBook)
 
                         exit()
                     }
@@ -527,14 +562,14 @@ open class NovelReadActivity : NovelBaseActivity() {
     private fun exit() {
         // 返回给BookDetail。
         val result = Intent()
-        result.putExtra(RESULT_IS_COLLECTED, isCollected)
+        result.putExtra(RESULT_IS_COLLECTED, mCollBook.favorite)
         setResult(Activity.RESULT_OK, result)
         super.onBackPressed()
     }
 
     override fun onPause() {
         super.onPause()
-        if (isCollected) {
+        if (mCollBook.favorite==0) {
             mPageLoader.saveRecord()
         }
     }

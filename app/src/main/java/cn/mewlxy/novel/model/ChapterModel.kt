@@ -85,9 +85,22 @@ data class ChapterModel constructor(@PrimaryKey(autoGenerate = true)
         override fun newArray(size: Int): Array<ChapterModel?> {
             return arrayOfNulls(size)
         }
+
+
+        fun convert2ChapterModel(chapterBean: ChapterBean): ChapterModel {
+            val chapterModel = ChapterModel()
+            chapterModel.id = chapterBean.id
+            chapterModel.name = chapterBean.name
+            chapterModel.url = chapterBean.url
+            chapterModel.content = chapterBean.content
+            chapterModel.bookName = chapterBean.bookName
+            chapterModel.bookUrl = chapterBean.bookUrl
+            return chapterModel
+
+        }
     }
 
-    fun convert2ChapterBean():ChapterBean{
+    fun convert2ChapterBean(): ChapterBean {
         val chapterBean = ChapterBean()
         chapterBean.id = this.id
         chapterBean.name = this.name
@@ -98,5 +111,6 @@ data class ChapterModel constructor(@PrimaryKey(autoGenerate = true)
         return chapterBean
 
     }
+
 
 }

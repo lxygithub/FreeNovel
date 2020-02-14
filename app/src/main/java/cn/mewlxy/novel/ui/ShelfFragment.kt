@@ -81,7 +81,7 @@ class ShelfFragment private constructor() : BaseFragment(), View.OnClickListener
             if (refresh) {
                 myBooks.clear()
             }
-            myBooks.addAll(appDB.bookDao().getAll()!!)
+            myBooks.addAll(appDB.bookDao().getAllFavorite())
             launch(Dispatchers.Main) {
                 adapter.notifyDataSetChanged()
                 if (!refresh) {

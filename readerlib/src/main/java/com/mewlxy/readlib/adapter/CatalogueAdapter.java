@@ -6,13 +6,13 @@ import android.view.ViewGroup;
 import com.mewlxy.readlib.model.ChapterBean;
 
 
-public class CategoryAdapter extends EasyAdapter<ChapterBean> {
+public class CatalogueAdapter extends EasyAdapter<ChapterBean> {
     private int currentSelected = 0;
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = super.getView(position, convertView, parent);
-        CategoryHolder holder = (CategoryHolder) view.getTag();
+        CatalogueHolder holder = (CatalogueHolder) view.getTag();
 
         if (position == currentSelected){
             holder.setSelectedChapter();
@@ -23,7 +23,7 @@ public class CategoryAdapter extends EasyAdapter<ChapterBean> {
 
     @Override
     protected IViewHolder<ChapterBean> onCreateViewHolder(int viewType) {
-        return new CategoryHolder();
+        return new CatalogueHolder();
     }
 
     public void setChapter(int pos){

@@ -9,7 +9,8 @@ import java.io.Serializable
 class BookBean : Serializable {
     var id = 0
     var name = ""
-    var isLocal = false
+    var isLocal = 0
+    var favorite = 0
     var cover = ""
     var author = ""
     var desc = ""
@@ -18,7 +19,9 @@ class BookBean : Serializable {
     var chapters = mutableListOf<ChapterBean>()
 
     var updateDate = ""
-    var isUpdate = false
+    var isUpdate = 0
     var lastChapter = ""
     var bookFilePath = ""
+
+    var specify = 0
 }

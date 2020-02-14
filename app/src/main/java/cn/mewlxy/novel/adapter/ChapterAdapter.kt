@@ -1,25 +1,23 @@
 package cn.mewlxy.novel.adapter
 
 import android.content.Context
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import cn.mewlxy.novel.R
-import cn.mewlxy.novel.listener.OnItemViewClickListener
+import cn.mewlxy.novel.listener.OnItemPositionClickListener
 import cn.mewlxy.novel.model.ChapterModel
-import cn.mewlxy.novel.ui.ReadingActivity
 
 /**
  * description：
  * author：luoxingyuan
  */
 class ChapterAdapter(var context: Context, var chapters: ArrayList<ChapterModel>) : RecyclerView.Adapter<ChapterAdapter.ViewHolder>() {
-    private lateinit var onItemViewClickListener: OnItemViewClickListener<ChapterModel>
+    private lateinit var onItemViewClickListener: OnItemPositionClickListener<ChapterModel>
 
-    fun setOnItemViewClickListener(onItemViewClickListener: OnItemViewClickListener<ChapterModel>){
+    fun setOnItemViewClickListener(onItemViewClickListener: OnItemPositionClickListener<ChapterModel>){
         this.onItemViewClickListener = onItemViewClickListener
     }
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -38,7 +36,7 @@ class ChapterAdapter(var context: Context, var chapters: ArrayList<ChapterModel>
         val chapter = chapters[position]
         holder.tvName.text = chapter.name
         holder.itemView.setOnClickListener {
-            onItemViewClickListener.itemClick(it,chapter)
+            onItemViewClickListener.itemClick(position,chapter)
         }
     }
 }

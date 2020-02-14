@@ -89,7 +89,7 @@ data class BookModel constructor(@PrimaryKey(autoGenerate = true)
     /**
      * 是否收藏
      */
-    var favorite = false
+    var favorite = 0
 
     var lastRead = ""
 
@@ -105,11 +105,30 @@ data class BookModel constructor(@PrimaryKey(autoGenerate = true)
         bookBean.desc = this.desc
         bookBean.id = this.id
         bookBean.url = this.url
+        bookBean.favorite = this.favorite
         bookBean.chapters = this.chapters.map {
 
             return@map it.convert2ChapterBean()
-        }.toMutableList()
+        } as ArrayList<ChapterBean>
         bookBean.author = this.bookAuthor
         return bookBean
+    }
+
+    companion object {
+
+        fun convert2BookModel(bookBean: BookBean): BookModel {
+            val bookModel = BookModel()
+            bookModel.name = bookBean.name
+            bookModel.coverUrl = bookBean.cover
+            bookModel.desc = bookBean.desc
+            bookModel.id = bookBean.id
+            bookModel.url = bookBean.url
+            bookModel.favorite = bookBean.favorite
+            bookModel.chapters = bookBean.chapters.map {
+                return@map ChapterModel.convert2ChapterModel(it)
+            } as ArrayList<ChapterModel>
+            bookModel.bookAuthor = bookBean.author
+            return bookModel
+        }
     }
 }

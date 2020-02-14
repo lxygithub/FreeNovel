@@ -317,7 +317,7 @@ public class LocalPageLoader extends PageLoader {
         //修改当前COllBook记录
         if (mCollBook != null && isChapterListPrepare) {
             //表示当前CollBook已经阅读
-            mCollBook.setUpdate(false);
+            mCollBook.setUpdate(0);
             mCollBook.setLastChapter(mChapterList.get(mCurChapterPos).getName());
             mCollBook.setLastRead(String.valueOf(System.currentTimeMillis()));
             //直接更新
@@ -344,7 +344,7 @@ public class LocalPageLoader extends PageLoader {
         String lastModified = DateUtil.INSTANCE.dateConvert(mBookFile.lastModified(), Constant.FORMAT_BOOK_DATE);
 
         // 判断文件是否已经加载过，并具有缓存
-        if (!mCollBook.isUpdate() && !TextUtils.isEmpty(mCollBook.getUpdateDate())
+        if (mCollBook.isUpdate()==0 && !TextUtils.isEmpty(mCollBook.getUpdateDate())
                 && mCollBook.getUpdateDate().equals(lastModified)
                 && !mCollBook.getChapters().isEmpty()) {
 
@@ -387,7 +387,7 @@ public class LocalPageLoader extends PageLoader {
                         }
 
                         // 存储章节到数据库
-                        List<ChapterBean> bookChapterBeanList = new ArrayList<>();
+                        ArrayList<ChapterBean> bookChapterBeanList = new ArrayList<>();
                         mCollBook.setChapters(bookChapterBeanList);
                         mCollBook.setUpdateDate(lastModified);
 
