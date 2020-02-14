@@ -1,24 +1,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.bifan.txtreaderlib">
+    package="com.mewlxy.readlib">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
     <application
         android:allowBackup="true"
-        android:label="@string/app_name"
         android:supportsRtl="true">
-        <activity
-            android:name="com.bifan.txtreaderlib.ui.HwTxtPlayActivity"
-            android:theme="@style/HwTxtFullScreen">
-            <intent-filter>
-                <data android:scheme="txt" />
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
 
-        </activity>
+        <provider
+            android:name=".base.ContextProvider"
+            android:authorities="${applicationId}.contextprovider"
+            android:exported="false" />
+        <activity android:name=".activity.NovelReadActivity"/>
     </application>
 
 

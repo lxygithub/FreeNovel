@@ -12,8 +12,12 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import cn.mewlxy.novel.R
+import cn.mewlxy.novel.constant.Constant
 import cn.mewlxy.novel.permissions.PermissionUtil
 import pub.devrel.easypermissions.AfterPermissionGranted
+import pub.devrel.easypermissions.AppSettingsDialog
+import pub.devrel.easypermissions.EasyPermissions
+import pub.devrel.easypermissions.PermissionRequest
 
 /**
  * description：
@@ -24,6 +28,8 @@ import pub.devrel.easypermissions.AfterPermissionGranted
 abstract class BaseActivity : AppCompatActivity(), LifecycleOwner, PermissionUtil.PermissionResultCallbacks {
 
     private lateinit var loadingView: View
+    private var perms: Array<String> = arrayOf()
+    private var rationale = ""
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,47 +66,55 @@ abstract class BaseActivity : AppCompatActivity(), LifecycleOwner, PermissionUti
     abstract fun initData()
 
 
-    @AfterPermissionGranted(PermissionUtil.REQUEST_CODE)
-    fun requestPermissions(rationale: String, vararg perms: String) {
+    open fun requestPermissions(perms: Array<String>, rationale: String = "应用需要获取权限,请点击允许") {
+        this.perms = perms
+        this.rationale = rationale
+        getPerms()
+    }
 
-        if (PermissionUtil.hasPermissions(*perms)) {
-            hasPermissionsDo()
-        } else {
-            PermissionUtil.requestPermissions(this, rationale, *perms)
+    open fun permissionsGranted() {}
+
+    open fun hasPermissions(perms: Array<String>): Boolean {
+        return EasyPermissions.hasPermissions(this, *perms)
+    }
+
+    @AfterPermissionGranted(Constant.PERMISSION_REQUEST_CODE)
+    private fun getPerms() {
+        if (perms.isNotEmpty()) {
+            if (EasyPermissions.hasPermissions(this, *perms)) {
+                // Already have permission, do the thing
+                permissionsGranted()
+            } else { // Do not have permissions, request them now
+                EasyPermissions.requestPermissions(
+                        PermissionRequest.Builder(this, Constant.PERMISSION_REQUEST_CODE, *perms)
+                                .setRationale(rationale)
+                                .setPositiveButtonText("允许")
+                                .setNegativeButtonText("取消")
+                                .setTheme(R.style.my_fancy_style)
+                                .build())
+            }
         }
     }
 
-
-    open fun hasPermissionsDo() {}
-
-
-    open fun somePermissionsDeniedDo() {}
-
-    open fun somePermissionsPermanentlyDeniedDo() {}
-
-    open fun showPermissionDeniedDialog(): Boolean {
-        return true
-    }
-
-    final override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        PermissionUtil.onPermissionsRequestResult(permissions, grantResults, this)
-
+    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
+        permissionsGranted()
     }
 
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
-        if (PermissionUtil.somePermissionsDenied(this, perms.toTypedArray())) {
-            somePermissionsDeniedDo()
-        }
-
-        if (PermissionUtil.somePermissionPermanentlyDenied(this, perms)) {
-            somePermissionsPermanentlyDeniedDo()
+        // (Optional) Check whether the user denied any permissions and checked "NEVER ASK AGAIN."
+        // This will display a dialog directing them to enable the permission in app settings.
+        // (Optional) Check whether the user denied any permissions and checked "NEVER ASK AGAIN."
+        // This will display a dialog directing them to enable the permission in app settings.
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            AppSettingsDialog.Builder(this).build().show()
         }
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
-
+        // Forward results to EasyPermissions
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
 
 }

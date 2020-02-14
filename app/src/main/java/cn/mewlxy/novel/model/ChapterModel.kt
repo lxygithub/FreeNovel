@@ -6,6 +6,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.mewlxy.readlib.model.ChapterBean
 
 /**
  * 章节
@@ -86,5 +87,16 @@ data class ChapterModel constructor(@PrimaryKey(autoGenerate = true)
         }
     }
 
+    fun convert2ChapterBean():ChapterBean{
+        val chapterBean = ChapterBean()
+        chapterBean.id = this.id
+        chapterBean.name = this.name
+        chapterBean.url = this.url
+        chapterBean.content = this.content
+        chapterBean.bookName = this.bookName
+        chapterBean.bookUrl = this.bookUrl
+        return chapterBean
+
+    }
 
 }

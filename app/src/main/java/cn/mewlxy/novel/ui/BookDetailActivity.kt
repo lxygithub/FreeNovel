@@ -1,6 +1,5 @@
 package cn.mewlxy.novel.ui
 
-import android.content.Intent
 import android.database.sqlite.SQLiteConstraintException
 import android.text.TextUtils
 import android.view.View
@@ -15,8 +14,11 @@ import cn.mewlxy.novel.jsoup.DomSoup
 import cn.mewlxy.novel.jsoup.OnJSoupListener
 import cn.mewlxy.novel.listener.OnItemViewClickListener
 import cn.mewlxy.novel.model.BookModel
+import cn.mewlxy.novel.model.BookRepositoryImpl
 import cn.mewlxy.novel.model.ChapterModel
 import cn.mewlxy.novel.utils.showToast
+import com.mewlxy.readlib.activity.NovelReadActivity
+import com.mewlxy.readlib.model.BookBean
 import kotlinx.android.synthetic.main.activity_book.*
 import kotlinx.android.synthetic.main.title_view.*
 import kotlinx.coroutines.CoroutineScope
@@ -147,16 +149,14 @@ class BookDetailActivity : BaseActivity(), View.OnClickListener, OnItemViewClick
                 addToShelf(bookModel)
             }
             R.id.tv_read -> {
-                startActivity(Intent(this, ReadingActivity::class.java)
-                        .putExtra("chapter", chapters[0])
-                )
+                NovelReadActivity.start(this,bookModel.convert2BookBean(),BookRepositoryImpl.instance)
             }
         }
     }
 
     override fun itemClick(view: View, t: ChapterModel) {
-        startActivity(Intent(this, ReadingActivity::class.java)
-                .putExtra("chapter", t))
+        NovelReadActivity.start(this,bookModel.convert2BookBean(),BookRepositoryImpl.instance)
     }
+
 
 }

@@ -1,5 +1,6 @@
 package cn.mewlxy.novel
 
+import android.Manifest
 import android.util.SparseArray
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
@@ -43,7 +44,15 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     }
 
     override fun initData() {
+        if (!hasPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE))) {
+            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), "应用需要获取手机存储权限，请点击允许")
+        }
     }
+
+    override fun permissionsGranted() {
+
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()

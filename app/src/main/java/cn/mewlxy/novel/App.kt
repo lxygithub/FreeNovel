@@ -1,8 +1,12 @@
 package cn.mewlxy.novel
 
 import android.app.Application
+import android.content.Context
+import android.content.res.Configuration
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.room.Room
 import cn.mewlxy.novel.db.AppDatabase
+import kotlin.properties.Delegates
 
 lateinit var appDB: AppDatabase
 
@@ -11,6 +15,9 @@ class App : Application() {
     companion object {
 
         lateinit var app: App
+        var context: Context by Delegates.notNull()
+            private set
+
     }
 
 
@@ -20,6 +27,7 @@ class App : Application() {
         appDB = Room.databaseBuilder(
                 this,
                 AppDatabase::class.java, "db_novel"
+
         ).build()
     }
 

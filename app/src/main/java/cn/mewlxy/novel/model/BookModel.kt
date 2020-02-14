@@ -4,6 +4,9 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.mewlxy.readlib.model.BookBean
+import com.mewlxy.readlib.model.ChapterBean
+import java.io.Serializable
 
 /**
  * description：
@@ -11,7 +14,8 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "my_shelf")
 data class BookModel constructor(@PrimaryKey(autoGenerate = true)
-                                 var id: Int) {
+                                 var id: Int) : Serializable {
+
     constructor() : this(0)
 
     /**
@@ -80,7 +84,7 @@ data class BookModel constructor(@PrimaryKey(autoGenerate = true)
      * 章节列表
      */
     @Ignore
-    var chapters:ArrayList<ChapterModel> = ArrayList()
+    var chapters = arrayListOf<ChapterModel>()
 
     /**
      * 是否收藏
@@ -93,4 +97,19 @@ data class BookModel constructor(@PrimaryKey(autoGenerate = true)
     var chapter: Int = 0
     //当前的页码
     var pagePos: Int = 0
+
+    fun convert2BookBean(): BookBean {
+        val bookBean = BookBean()
+        bookBean.name = this.name
+        bookBean.cover = this.coverUrl
+        bookBean.desc = this.desc
+        bookBean.id = this.id
+        bookBean.url = this.url
+        bookBean.chapters = this.chapters.map {
+
+            return@map it.convert2ChapterBean()
+        }.toMutableList()
+        bookBean.author = this.bookAuthor
+        return bookBean
+    }
 }

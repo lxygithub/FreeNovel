@@ -1,7 +1,6 @@
 package cn.mewlxy.novel.ui
 
 import android.animation.LayoutTransition
-import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,7 +13,6 @@ import cn.mewlxy.novel.jsoup.OnJSoupListener
 import cn.mewlxy.novel.listener.OnItemViewClickListener
 import cn.mewlxy.novel.model.ChapterModel
 import cn.mewlxy.novel.utils.showToast
-import com.bifan.txtreaderlib.ui.HwTxtPlayActivity
 import kotlinx.android.synthetic.main.activity_reading.*
 import kotlinx.android.synthetic.main.bottom_menu.*
 import kotlinx.android.synthetic.main.view_index.*
@@ -131,7 +129,6 @@ class ReadingActivity : BaseActivity(), View.OnClickListener, OnItemViewClickLis
                 }
                 chapter.content = contentStringBuilder.toString()
 //                page_view.text = chapter.content
-                HwTxtPlayActivity.loadStr(this@ReadingActivity as Context, chapter.content)
                 cacheChapter(chapter)
             }
 
@@ -175,7 +172,7 @@ class ReadingActivity : BaseActivity(), View.OnClickListener, OnItemViewClickLis
     private fun getCacheChapters(bookUrl: String) {
         uiScope.launch(Dispatchers.IO) {
             chapters.clear()
-            chapters.addAll(appDB.chapterDao().getAllByBookUrl(bookUrl)!!)
+            chapters.addAll(appDB.chapterDao().getChaptersByBookUrl(bookUrl)!!)
         }
         chapterAdapter.notifyDataSetChanged()
     }
