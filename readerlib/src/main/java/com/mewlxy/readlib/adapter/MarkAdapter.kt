@@ -20,19 +20,11 @@ class MarkAdapter(private val mList: List<BookSignTable>) : RecyclerView.Adapter
             notifyDataSetChanged()
         }
 
-    val selectList: String
+    val selectList: List<BookSignTable>
         get() {
-            val signs = StringBuilder()
-            for (i in mList.indices) {
-                if (mList[i].edit) {
-                    if (signs.toString() == "") {
-                        signs.append(mList[i].articleId)
-                    } else {
-                        signs.append(",").append(mList[i].articleId)
-                    }
-                }
+            return mList.filter {
+                return@filter it.edit
             }
-            return signs.toString()
         }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): RecyclerView.ViewHolder {
@@ -53,7 +45,7 @@ class MarkAdapter(private val mList: List<BookSignTable>) : RecyclerView.Adapter
             } else {
                 viewHolder.mCheck.visibility = View.GONE
             }
-            viewHolder.mTvMark.text = mList[i].content
+            viewHolder.mTvMark.text = mList[i].chapterName
             viewHolder.mCheck.isChecked = mList[i].edit
         }
     }

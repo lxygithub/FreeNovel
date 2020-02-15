@@ -50,6 +50,12 @@ public class NetPageLoader extends PageLoader {
     }
 
     @Override
+    public void openSpecifyChapter(int specifyChapter) {
+//        mCurChapterPos = specifyChapter;
+//        refreshChapterList();
+    }
+
+    @Override
     protected BufferedReader getChapterReader(ChapterBean chapter) throws Exception {
         File file = new File(Constant.BOOK_CACHE_PATH
                 + MD5Utils.INSTANCE.strToMd5By16(mCollBook.getUrl())

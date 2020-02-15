@@ -1,5 +1,6 @@
 package cn.mewlxy.novel.ui
 
+import android.app.Activity
 import android.content.Intent
 import android.database.sqlite.SQLiteConstraintException
 import android.text.TextUtils
@@ -20,6 +21,7 @@ import cn.mewlxy.novel.model.ChapterModel
 import cn.mewlxy.novel.utils.showToast
 import com.mewlxy.readlib.Constant
 import com.mewlxy.readlib.activity.NovelReadActivity
+import com.mewlxy.readlib.model.BookBean
 import kotlinx.android.synthetic.main.activity_book.*
 import kotlinx.android.synthetic.main.title_view.*
 import kotlinx.coroutines.CoroutineScope
@@ -147,27 +149,7 @@ class BookDetailActivity : BaseActivity(), View.OnClickListener, OnItemPositionC
     }
 
     private fun addToShelf(bookModel: BookModel) {
-        showLoading()
-        uiScope.launch(Dispatchers.IO) {
-            if (!TextUtils.isEmpty(bookModel.url)) {
-                val url = appDB.bookDao().queryFavoriteByUrl(bookModel.url)?.url
-                val favorite = appDB.bookDao().queryFavoriteByUrl(bookModel.url)?.favorite
-                launch(Dispatchers.Main) {
-                    if (TextUtils.isEmpty(url) && favorite != 1) {
-                        launch(Dispatchers.IO) {
-                            bookModel.favorite = 1
-                            appDB.bookDao().inserts(bookModel)
-                        }
-                        showToast("加入书架成功")
-                    } else {
-                        showToast("该书籍已在书架中")
-                    }
-                }
-            }
-            launch(Dispatchers.Main) {
-                dismissLoading()
-            }
-        }
+        BookRepositoryImpl.instance.saveCollBookWithAsync(bookModel.convert2BookBean())
 
     }
 
@@ -188,13 +170,13 @@ class BookDetailActivity : BaseActivity(), View.OnClickListener, OnItemPositionC
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val favorite = data?.getIntExtra(Constant.ResultCode.RESULT_IS_COLLECTED, 0)
-        if (favorite != null) {
-            bookModel.favorite = favorite
-            uiScope.launch(Dispatchers.IO) {
-                appDB.bookDao().update(bookModel)
+        if (requestCode==Activity.RESULT_OK) {
+            val favorite = data?.getIntExtra(Constant.ResultCode.RESULT_IS_COLLECTED, 0)
+            if (favorite != null) {
+                bookModel.favorite = favorite
             }
         }
+
     }
 
     override fun itemClick(position: Int, t: ChapterModel) {

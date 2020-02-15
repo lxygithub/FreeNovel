@@ -1,7 +1,9 @@
 package com.mewlxy.readlib.model
 
 import com.mewlxy.readlib.Constant
+import com.mewlxy.readlib.interfaces.OnBookSignsListener
 import com.mewlxy.readlib.interfaces.OnChaptersListener
+import com.mewlxy.readlib.interfaces.OnReadRecordListener
 import com.mewlxy.readlib.utlis.FileUtils
 import com.mewlxy.readlib.utlis.IOUtils.close
 import java.io.*
@@ -11,8 +13,16 @@ import java.io.*
  * 存储关于书籍内容的信息(CollBook(收藏书籍),BookChapter(书籍列表),ChapterInfo(书籍章节),BookRecord(记录),BookSignTable书签)
  */
 abstract class BookRepository {
-    abstract fun saveBookRecord(mBookRecord: ReadRecordBean?)
-    abstract fun getBookRecord(bookId: String?): ReadRecordBean?
+    /**
+     * 保存阅读记录
+     */
+    abstract fun saveBookRecord(mBookRecord: ReadRecordBean)
+
+    /**
+     * 获取阅读记录
+     */
+    abstract fun getBookRecord(bookUrl: String, readRecordListener: OnReadRecordListener)
+
     /**
      * 获取章节列表
      */
@@ -56,4 +66,24 @@ abstract class BookRepository {
      * 加入书架
      */
     abstract fun saveCollBookWithAsync(mCollBook: BookBean)
+
+    /**
+     * 书签是否已存在
+     */
+    abstract fun hasSigned(chapterUrl: String): Boolean
+
+    /**
+     * 添加书签
+     */
+    abstract fun addSign(mBookUrl: String, chapterUrl: String, chapterName: String, bookSignsListener: OnBookSignsListener)
+
+    /**
+     * 删除书签
+     */
+    abstract fun deleteSign(vararg bookSign: BookSignTable)
+
+    /**
+     * 获取书签列表
+     */
+    abstract fun getSigns(bookUrl: String, bookSignsListener: OnBookSignsListener)
 }

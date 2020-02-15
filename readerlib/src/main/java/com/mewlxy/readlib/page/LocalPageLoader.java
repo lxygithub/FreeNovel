@@ -4,7 +4,6 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-
 import com.mewlxy.readlib.Constant;
 import com.mewlxy.readlib.model.BookBean;
 import com.mewlxy.readlib.model.BookRepository;
@@ -29,7 +28,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleObserver;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.disposables.Disposable;
@@ -62,7 +60,7 @@ public class LocalPageLoader extends PageLoader {
     //编码类型
     private Charset mCharset;
 
-    private Disposable mChapterDisp = null;
+    private Disposable mChapterDispose = null;
 
     private Context mContext;
 
@@ -328,9 +326,9 @@ public class LocalPageLoader extends PageLoader {
     @Override
     public void closeBook() {
         super.closeBook();
-        if (mChapterDisp != null) {
-            mChapterDisp.dispose();
-            mChapterDisp = null;
+        if (mChapterDispose != null) {
+            mChapterDispose.dispose();
+            mChapterDispose = null;
         }
     }
 
@@ -363,22 +361,19 @@ public class LocalPageLoader extends PageLoader {
         }
 
         // 通过RxJava异步处理分章事件
-        Single.create(new SingleOnSubscribe<Void>() {
-            @Override
-            public void subscribe(SingleEmitter<Void> e) throws Exception {
-                loadChapters();
-                e.onSuccess(new Void());
-            }
+        Single.create((SingleOnSubscribe<Void>) e -> {
+            loadChapters();
+            e.onSuccess(new Void());
         }).compose(RxUtils::toSimpleSingle)
                 .subscribe(new SingleObserver<Void>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-                        mChapterDisp = d;
+                        mChapterDispose = d;
                     }
 
                     @Override
                     public void onSuccess(Void value) {
-                        mChapterDisp = null;
+                        mChapterDispose = null;
                         isChapterListPrepare = true;
 
                         // 提示目录加载完成
@@ -404,6 +399,11 @@ public class LocalPageLoader extends PageLoader {
                         Log.e(TAG, "file load error: " + e.toString());
                     }
                 });
+    }
+
+    @Override
+    public void openSpecifyChapter(int specifyChapter) {
+
     }
 
     @Override

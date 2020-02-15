@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.view.View
-import com.mewlxy.readlib.page.PageAnimation
 
 /**
  * Created by zlj

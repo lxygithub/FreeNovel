@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "55632a971a41ac9d3d093bfb943073c5",
+    "identityHash": "3cc0ce9eb78b53b78ec76e9e976697da",
     "entities": [
       {
         "tableName": "my_shelf",
@@ -184,12 +184,124 @@
           }
         ],
         "foreignKeys": []
+      },
+      {
+        "tableName": "my_signs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `bookUrl` TEXT NOT NULL, `chapterUrl` TEXT NOT NULL, `chapterName` TEXT NOT NULL, `saveTime` INTEGER NOT NULL, `edit` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bookUrl",
+            "columnName": "bookUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chapterUrl",
+            "columnName": "chapterUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chapterName",
+            "columnName": "chapterName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "saveTime",
+            "columnName": "saveTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "edit",
+            "columnName": "edit",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_my_signs_chapterUrl",
+            "unique": true,
+            "columnNames": [
+              "chapterUrl"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_my_signs_chapterUrl` ON `${TABLE_NAME}` (`chapterUrl`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "my_read_records",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `bookUrl` TEXT NOT NULL, `bookMd5` TEXT NOT NULL, `chapterPos` INTEGER NOT NULL, `pagePos` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bookUrl",
+            "columnName": "bookUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bookMd5",
+            "columnName": "bookMd5",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chapterPos",
+            "columnName": "chapterPos",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pagePos",
+            "columnName": "pagePos",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_my_read_records_bookMd5",
+            "unique": true,
+            "columnNames": [
+              "bookMd5"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_my_read_records_bookMd5` ON `${TABLE_NAME}` (`bookMd5`)"
+          }
+        ],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '55632a971a41ac9d3d093bfb943073c5')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3cc0ce9eb78b53b78ec76e9e976697da')"
     ]
   }
 }

@@ -137,8 +137,8 @@ class ShelfFragment private constructor() : BaseFragment(), View.OnClickListener
     override fun deleteItem(t: BookModel) {
         showLoading()
         uiScope.launch(Dispatchers.IO) {
-            appDB.bookDao().delete(t)
-            appDB.chapterDao().deleteBookByBookUrl(t.url)
+            t.favorite = 0
+            appDB.bookDao().update(t)
             launch(Dispatchers.Main) {
                 myBooks.remove(t)
                 adapter.notifyDataSetChanged()

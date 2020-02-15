@@ -1,15 +1,15 @@
 package cn.mewlxy.novel.model
 
 import android.text.TextUtils
+import android.util.Log
 import cn.mewlxy.novel.appDB
 import cn.mewlxy.novel.jsoup.DomSoup
 import cn.mewlxy.novel.jsoup.OnJSoupListener
 import cn.mewlxy.novel.utils.showToast
+import com.mewlxy.readlib.interfaces.OnBookSignsListener
 import com.mewlxy.readlib.interfaces.OnChaptersListener
-import com.mewlxy.readlib.model.BookBean
-import com.mewlxy.readlib.model.BookRepository
-import com.mewlxy.readlib.model.ChapterBean
-import com.mewlxy.readlib.model.ReadRecordBean
+import com.mewlxy.readlib.interfaces.OnReadRecordListener
+import com.mewlxy.readlib.model.*
 import com.mewlxy.readlib.utlis.MD5Utils
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -25,7 +25,7 @@ import org.reactivestreams.Subscription
  * description：
  * author：luoxingyuan
  */
-class BookRepositoryImpl : BookRepository() {
+open class BookRepositoryImpl : BookRepository() {
     private val uiScope = CoroutineScope(Dispatchers.Main)
     private val domSoup = DomSoup()
     var lastSub: Subscription? = null
@@ -42,7 +42,7 @@ class BookRepositoryImpl : BookRepository() {
         return Single.create {
             uiScope.launch(Dispatchers.IO) {
                 val chapterContent = appDB.chapterDao().getChapterContent(chapterBean.url)
-                uiScope.launch(Dispatchers.Main) {
+                launch(Dispatchers.Main) {
                     if (chapterContent.isNullOrBlank()) {
                         domSoup.getSoup(chapterBean.url, object : OnJSoupListener {
                             override fun start() {
@@ -58,7 +58,7 @@ class BookRepositoryImpl : BookRepository() {
                                 chapterBean.content = stringBuilder.toString()
                                 it.onSuccess(chapterBean)
 
-                                uiScope.launch(Dispatchers.IO) {
+                                launch(Dispatchers.IO) {
                                     val chapterModel = ChapterModel()
                                     chapterModel.id = chapterBean.id
                                     chapterModel.name = chapterBean.name
@@ -84,11 +84,30 @@ class BookRepositoryImpl : BookRepository() {
         }
     }
 
-    override fun saveBookRecord(mBookRecord: ReadRecordBean?) {
+    override fun saveBookRecord(mBookRecord: ReadRecordBean) {
+        try {
+            uiScope.launch(Dispatchers.IO) {
+                mBookRecord.bookMd5 = MD5Utils.strToMd5By16(mBookRecord.bookUrl)!!
+                appDB.readRecordDao().inserts(ReadRecordModel.createReadRecordModel(mBookRecord))
+            }
+        } catch (e: Exception) {
+            Log.e("error", e.toString())
+        }
     }
 
-    override fun getBookRecord(bookId: String?): ReadRecordBean? {
-        return ReadRecordBean()
+    override fun getBookRecord(bookUrl: String, readRecordListener: OnReadRecordListener) {
+        readRecordListener.onStart()
+        var readRecordModel: ReadRecordModel?
+        try {
+            uiScope.launch(Dispatchers.IO) {
+                readRecordModel = appDB.readRecordDao().getReadRecord(MD5Utils.strToMd5By16(bookUrl)!!)
+                launch(Dispatchers.Main) {
+                    readRecordListener.onSuccess(if (readRecordModel == null) ReadRecordModel() else readRecordModel!!)
+                }
+            }
+        } catch (e: Exception) {
+            readRecordListener.onError(e.toString())
+        }
     }
 
     override fun chapterBeans(mCollBook: BookBean, onChaptersListener: OnChaptersListener, start: Int) {
@@ -99,7 +118,7 @@ class BookRepositoryImpl : BookRepository() {
                 chapters.addAll(appDB.chapterDao().getChaptersByBookUrl(mCollBook.url, start = start).map {
                     return@map it.convert2ChapterBean()
                 })
-                uiScope.launch(Dispatchers.Main) {
+                launch(Dispatchers.Main) {
                     onChaptersListener.onSuccess(chapters)
                 }
             }
@@ -159,10 +178,16 @@ class BookRepositoryImpl : BookRepository() {
                 val url = appDB.bookDao().queryFavoriteByUrl(bookModel.url)?.url
                 val favorite = appDB.bookDao().queryFavoriteByUrl(bookModel.url)?.favorite
                 launch(Dispatchers.Main) {
-                    if (TextUtils.isEmpty(url) && favorite != 1) {
+                    if (TextUtils.isEmpty(url) && favorite == null) {
                         launch(Dispatchers.IO) {
                             bookModel.favorite = 1
                             appDB.bookDao().inserts(bookModel)
+                        }
+                        showToast("加入书架成功")
+                    } else if (!TextUtils.isEmpty(url) && favorite == 0) {
+                        launch(Dispatchers.IO) {
+                            bookModel.favorite = 1
+                            appDB.bookDao().update(bookModel)
                         }
                         showToast("加入书架成功")
                     } else {
@@ -171,5 +196,63 @@ class BookRepositoryImpl : BookRepository() {
                 }
             }
         }
+    }
+
+    //---------------------------------------------书签相关---------------------------------------------
+    override fun hasSigned(chapterUrl: String): Boolean {
+        var bookSign: BookSignModel? = null
+        uiScope.launch(Dispatchers.IO) {
+            bookSign = appDB.bookSignDao().getSignsByChapterUrl(chapterUrl)
+        }
+        return bookSign != null
+    }
+
+    override fun addSign(mBookUrl: String, chapterUrl: String, chapterName: String, bookSignsListener: OnBookSignsListener) {
+        bookSignsListener.onStart()
+        val bookSign = BookSignModel()
+        bookSign.bookUrl = mBookUrl
+        bookSign.chapterUrl = chapterUrl
+        bookSign.chapterName = chapterName
+        try {
+            uiScope.launch(Dispatchers.IO) {
+                if (appDB.bookSignDao().getSignsByChapterUrl(chapterUrl) == null) {
+                    appDB.bookSignDao().inserts(bookSign)
+                    launch(Dispatchers.Main) {
+                        bookSignsListener.onSuccess(mutableListOf(bookSign))
+                    }
+                } else {
+                    launch(Dispatchers.Main) {
+                        showToast("本章节书签已经存在")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            bookSignsListener.onError(e.toString())
+        }
+    }
+
+    override fun deleteSign(vararg bookSign: BookSignTable) {
+        uiScope.launch(Dispatchers.IO) {
+            val list = bookSign.map {
+                return@map it as BookSignModel
+            }.toTypedArray()
+            appDB.bookSignDao().delete(*list)
+        }
+    }
+
+    override fun getSigns(bookUrl: String, bookSignsListener: OnBookSignsListener) {
+        bookSignsListener.onStart()
+        val bookSigns = mutableListOf<BookSignModel>()
+        try {
+            uiScope.launch(Dispatchers.IO) {
+                bookSigns.addAll(appDB.bookSignDao().getSignsByBookUrl(bookUrl))
+                launch(Dispatchers.Main) {
+                    bookSignsListener.onSuccess(bookSigns)
+                }
+            }
+        } catch (e: Exception) {
+            bookSignsListener.onError(e.toString())
+        }
+
     }
 }

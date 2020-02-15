@@ -2,7 +2,10 @@ package com.mewlxy.readlib.activity
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Handler
 import android.os.Message
@@ -22,15 +25,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.mewlxy.readlib.Constant
 import com.mewlxy.readlib.Constant.ResultCode.Companion.RESULT_IS_COLLECTED
 import com.mewlxy.readlib.R
-import com.mewlxy.readlib.adapter.MarkAdapter
-import com.mewlxy.readlib.page.ReadSettingManager
-import com.mewlxy.readlib.dialog.ReadSettingDialog
 import com.mewlxy.readlib.adapter.CatalogueAdapter
+import com.mewlxy.readlib.adapter.MarkAdapter
 import com.mewlxy.readlib.base.NovelBaseActivity
+import com.mewlxy.readlib.dialog.ReadSettingDialog
+import com.mewlxy.readlib.interfaces.OnBookSignsListener
 import com.mewlxy.readlib.interfaces.OnChaptersListener
-import com.mewlxy.readlib.model.*
+import com.mewlxy.readlib.model.BookBean
+import com.mewlxy.readlib.model.BookRepository
+import com.mewlxy.readlib.model.BookSignTable
+import com.mewlxy.readlib.model.ChapterBean
 import com.mewlxy.readlib.page.PageLoader
 import com.mewlxy.readlib.page.PageView
+import com.mewlxy.readlib.page.ReadSettingManager
 import com.mewlxy.readlib.utlis.*
 import kotlinx.android.synthetic.main.activity_read.*
 import kotlinx.android.synthetic.main.layout_download.*
@@ -49,7 +56,7 @@ open class NovelReadActivity : NovelBaseActivity() {
     private lateinit var mCurrentChapter: ChapterBean //当前章节
     private var currentChapter = 0
     private lateinit var mMarkAdapter: MarkAdapter
-    private val mMarks = ArrayList<BookSignTable>()
+    private val mMarks = mutableListOf<BookSignTable>()
     private lateinit var mPageLoader: PageLoader
     private var mTopInAnim: Animation? = null
     private var mTopOutAnim: Animation? = null
@@ -61,7 +68,6 @@ open class NovelReadActivity : NovelBaseActivity() {
     private var isFullScreen = false
 
     private lateinit var mCollBook: BookBean
-    private lateinit var mBookId: String
     private var chapterStart = 0
 
     @SuppressLint("HandlerLeak")
@@ -93,7 +99,6 @@ open class NovelReadActivity : NovelBaseActivity() {
 
     override fun initView() {
         mCollBook = intent.getSerializableExtra(EXTRA_COLL_BOOK) as BookBean
-        mBookId = mCollBook.url
         // 如果 API < 18 取消硬件加速
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
             read_pv_page.setLayerType(LAYER_TYPE_SOFTWARE, null)
@@ -331,29 +336,43 @@ open class NovelReadActivity : NovelBaseActivity() {
 
         tvAddMark.setOnClickListener {
             mMarkAdapter.edit = false
-//            if (bookRepository().getSignById(mCurrentChapter.chapterId)) {
-//                showToast(getString(R.string.sign_exist))
-//                return@setOnClickListener
-//            }
-//            bookRepository().addSign(mBookId, mCurrentChapter.chapterId, mCurrentChapter.title)
-            updateMark()
+            if (bookRepository.hasSigned(mCurrentChapter.url)) {
+                showToast(getString(R.string.sign_exist))
+                return@setOnClickListener
+            }
+            bookRepository.addSign(mCollBook.url, mCurrentChapter.url, mCurrentChapter.name, object : OnBookSignsListener {
+                override fun onStart() {
+                }
+
+                override fun onSuccess(chapterBeans: MutableList<out BookSignTable>) {
+                    mMarks.add(chapterBeans.first())
+                    mMarkAdapter.notifyDataSetChanged()
+                }
+
+                override fun onError(errorMsg: String) {
+                }
+
+            })
+
         }
 
         tvClear.setOnClickListener {
             if (mMarkAdapter.edit) {
                 val sign = mMarkAdapter.selectList
-                if (sign != "") {
-//                    bookRepository().deleteSign(sign)
-                    updateMark()
+                if (sign.isNotEmpty()) {
+                    bookRepository.deleteSign(*sign.toTypedArray())
+                    mMarks.clear()
+                    mMarkAdapter.notifyDataSetChanged()
                 }
                 mMarkAdapter.edit = false
             } else {
                 mMarkAdapter.edit = true
+                mMarkAdapter.notifyDataSetChanged()
             }
         }
 
         tv_cache.setOnClickListener {
-            if (mCollBook.favorite==0) { //没有收藏 先收藏 然后弹框
+            if (mCollBook.favorite == 0) { //没有收藏 先收藏 然后弹框
                 //设置为已收藏
                 mCollBook.favorite = 1
                 //设置阅读时间
@@ -507,9 +526,21 @@ open class NovelReadActivity : NovelBaseActivity() {
 
 
     private fun updateMark() {
-        mMarks.clear()
-//        mMarks.addAll(bookRepository().getSign(mBookId))
-        mMarkAdapter.notifyDataSetChanged()
+        bookRepository.getSigns(mCollBook.url, object : OnBookSignsListener {
+            override fun onStart() {
+            }
+
+            override fun onSuccess(chapterBeans: MutableList<out BookSignTable>) {
+                mMarks.clear()
+                mMarks.addAll(chapterBeans)
+                mMarkAdapter.notifyDataSetChanged()
+            }
+
+            override fun onError(errorMsg: String) {
+            }
+
+        })
+
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
@@ -537,7 +568,7 @@ open class NovelReadActivity : NovelBaseActivity() {
         }
         Log.e(TAG, "onBackPressed: " + mCollBook.chapters.isEmpty())
 
-        if (mCollBook.favorite==0 && mCollBook.chapters.isNotEmpty()) {
+        if (mCollBook.favorite == 0 && mCollBook.chapters.isNotEmpty()) {
             val alertDialog = AlertDialog.Builder(this)
                     .setTitle(getString(R.string.add_book))
                     .setMessage(getString(R.string.like_book))
@@ -548,13 +579,14 @@ open class NovelReadActivity : NovelBaseActivity() {
                         mCollBook.lastRead = System.currentTimeMillis().toString()
 
                         bookRepository.saveCollBookWithAsync(mCollBook)
+                        mCollBook.favorite = 1
 
                         exit()
                     }
                     .setNegativeButton(getString(R.string.cancel)) { dialog, which -> exit() }.create()
             alertDialog.show()
         } else {
-            exit()
+            finish()
         }
     }
 
@@ -564,12 +596,13 @@ open class NovelReadActivity : NovelBaseActivity() {
         val result = Intent()
         result.putExtra(RESULT_IS_COLLECTED, mCollBook.favorite)
         setResult(Activity.RESULT_OK, result)
-        super.onBackPressed()
+        finish()
+
     }
 
     override fun onPause() {
         super.onPause()
-        if (mCollBook.favorite==0) {
+        if (mCollBook.favorite == 1) {
             mPageLoader.saveRecord()
         }
     }
@@ -618,10 +651,10 @@ open class NovelReadActivity : NovelBaseActivity() {
         private const val WHAT_CATEGORY = 1
         private const val WHAT_CHAPTER = 2
 
-        fun start(context: Context, collBookBean: BookBean, bookRepository: BookRepository) {
+        fun start(activity: Activity, collBookBean: BookBean, bookRepository: BookRepository) {
             this.bookRepository = bookRepository
-            context.startActivity(Intent(context, NovelReadActivity::class.java)
-                    .putExtra(EXTRA_COLL_BOOK, collBookBean))
+            activity.startActivityForResult(Intent(activity, NovelReadActivity::class.java)
+                    .putExtra(EXTRA_COLL_BOOK, collBookBean), Activity.RESULT_OK)
         }
     }
 }

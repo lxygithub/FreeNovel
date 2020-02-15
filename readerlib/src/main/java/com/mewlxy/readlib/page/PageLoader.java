@@ -23,6 +23,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.mewlxy.readlib.Constant;
 import com.mewlxy.readlib.R;
+import com.mewlxy.readlib.interfaces.OnReadRecordListener;
 import com.mewlxy.readlib.model.BookBean;
 import com.mewlxy.readlib.model.ChapterBean;
 import com.mewlxy.readlib.model.ReadRecordBean;
@@ -32,6 +33,8 @@ import com.mewlxy.readlib.utlis.IOUtils;
 import com.mewlxy.readlib.utlis.RxUtils;
 import com.mewlxy.readlib.utlis.ScreenUtils;
 import com.mewlxy.readlib.utlis.StringUtils;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -580,8 +583,8 @@ public abstract class PageLoader {
             return;
         }
 
-        mBookRecord.setBookId(mCollBook.getUrl());
-        mBookRecord.setChapter(mCurChapterPos);
+        mBookRecord.setBookUrl(mCollBook.getUrl());
+        mBookRecord.setChapterPos(mCurChapterPos);
 
         if (mCurPage != null) {
             mBookRecord.setPagePos(mCurPage.position);
@@ -597,15 +600,35 @@ public abstract class PageLoader {
      * 初始化书籍
      */
     private void prepareBook() {
-        mBookRecord = bookRepository
-                .getBookRecord(mCollBook.getUrl());
+        bookRepository
+                .getBookRecord(mCollBook.getUrl(), new OnReadRecordListener() {
+                    @Override
+                    public void onError(@NotNull String errorMsg) {
+                        if (mBookRecord == null) {
+                            mBookRecord = new ReadRecordBean();
+                        }
+                    }
 
-        if (mBookRecord == null) {
-            mBookRecord = new ReadRecordBean();
-        }
+                    @Override
+                    public void onSuccess(@NotNull ReadRecordBean readRecord) {
+                        if (mCollBook.getFavorite() == 1) {
+                            mBookRecord = readRecord;
+                        }else {
+                            mBookRecord = new ReadRecordBean();
+                        }
+                        mCurChapterPos = mBookRecord.getChapterPos();
+                        mLastChapterPos = mCurChapterPos;
+                    }
 
-        mCurChapterPos = mBookRecord.getChapter();
-        mLastChapterPos = mCurChapterPos;
+                    @Override
+                    public void onStart() {
+
+                    }
+                });
+
+
+
+
     }
 
     /**
@@ -720,6 +743,8 @@ public abstract class PageLoader {
      * 刷新章节列表
      */
     public abstract void refreshChapterList();
+
+    public abstract void openSpecifyChapter(int specifyChapter);
 
     /**
      * 获取章节的文本流

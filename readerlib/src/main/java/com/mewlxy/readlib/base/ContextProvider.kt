@@ -14,11 +14,11 @@ import com.mewlxy.readlib.utlis.SpUtil
 class ContextProvider : ContentProvider() {
 
     companion object {
-        var mContext: Context? = null
+        lateinit var mContext: Context
     }
 
     override fun onCreate(): Boolean {
-        mContext = context
+        mContext = context!!
         SpUtil.init(context)
         LocalManageUtil.setApplicationLanguage(context)
         setNight()
