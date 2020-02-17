@@ -14,9 +14,7 @@ import com.mewlxy.readlib.utlis.MD5Utils
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.jsoup.nodes.Document
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
@@ -88,7 +86,10 @@ open class BookRepositoryImpl : BookRepository() {
         try {
             uiScope.launch(Dispatchers.IO) {
                 mBookRecord.bookMd5 = MD5Utils.strToMd5By16(mBookRecord.bookUrl)!!
-                appDB.readRecordDao().inserts(ReadRecordModel.createReadRecordModel(mBookRecord))
+                try {
+                    appDB.readRecordDao().inserts(ReadRecordModel.createReadRecordModel(mBookRecord))
+                } catch (e: Exception) {
+                }
             }
         } catch (e: Exception) {
             Log.e("error", e.toString())
@@ -177,11 +178,14 @@ open class BookRepositoryImpl : BookRepository() {
             uiScope.launch(Dispatchers.IO) {
                 val url = appDB.bookDao().queryFavoriteByUrl(bookModel.url)?.url
                 val favorite = appDB.bookDao().queryFavoriteByUrl(bookModel.url)?.favorite
-                launch(Dispatchers.Main) {
+                withContext(Dispatchers.Main){
                     if (TextUtils.isEmpty(url) && favorite == null) {
                         launch(Dispatchers.IO) {
                             bookModel.favorite = 1
-                            appDB.bookDao().inserts(bookModel)
+                            try {
+                                appDB.bookDao().inserts(bookModel)
+                            } catch (e: Exception) {
+                            }
                         }
                         showToast("加入书架成功")
                     } else if (!TextUtils.isEmpty(url) && favorite == 0) {
@@ -216,7 +220,10 @@ open class BookRepositoryImpl : BookRepository() {
         try {
             uiScope.launch(Dispatchers.IO) {
                 if (appDB.bookSignDao().getSignsByChapterUrl(chapterUrl) == null) {
-                    appDB.bookSignDao().inserts(bookSign)
+                    try {
+                        appDB.bookSignDao().inserts(bookSign)
+                    } catch (e: Exception) {
+                    }
                     launch(Dispatchers.Main) {
                         bookSignsListener.onSuccess(mutableListOf(bookSign))
                     }
