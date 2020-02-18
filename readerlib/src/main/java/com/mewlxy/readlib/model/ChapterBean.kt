@@ -8,6 +8,7 @@ class ChapterBean {
     var id = 0
     var name = ""
     var url = ""
+    var md5 = ""
     var content = ""
     var bookName = ""
     var bookUrl = ""

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "fa380c1a63ce52ac147cbfe80396e218",
+    "identityHash": "c946848eb9bd6dbc62b7def1bda1a1cd",
     "entities": [
       {
         "tableName": "my_shelf",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `url` TEXT NOT NULL, `category` TEXT NOT NULL, `status` TEXT NOT NULL, `typeUrl` TEXT NOT NULL, `coverUrl` TEXT NOT NULL, `bookAuthor` TEXT NOT NULL, `desc` TEXT NOT NULL, `source` TEXT NOT NULL, `chaptersUrl` TEXT NOT NULL, `charCount` INTEGER NOT NULL, `chapterCount` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `url` TEXT NOT NULL, `category` TEXT NOT NULL, `status` TEXT NOT NULL, `typeUrl` TEXT NOT NULL, `coverUrl` TEXT NOT NULL, `bookAuthor` TEXT NOT NULL, `desc` TEXT NOT NULL, `source` TEXT NOT NULL, `chaptersUrl` TEXT NOT NULL, `charCount` INTEGER NOT NULL, `chapterCount` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, `lastRead` TEXT NOT NULL, `chapter` INTEGER NOT NULL, `pagePos` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
         "fields": [
           {
             "fieldPath": "name",
@@ -81,6 +81,30 @@
             "notNull": true
           },
           {
+            "fieldPath": "favorite",
+            "columnName": "favorite",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastRead",
+            "columnName": "lastRead",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chapter",
+            "columnName": "chapter",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pagePos",
+            "columnName": "pagePos",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
@@ -98,8 +122,14 @@
       },
       {
         "tableName": "cached_chapters",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookName` TEXT NOT NULL, `bookUrl` TEXT NOT NULL, `index` INTEGER NOT NULL, `name` TEXT NOT NULL, `content` TEXT NOT NULL, `url` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`md5` TEXT NOT NULL, `bookName` TEXT NOT NULL, `bookUrl` TEXT NOT NULL, `index` INTEGER NOT NULL, `name` TEXT NOT NULL, `content` TEXT NOT NULL, `url` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
         "fields": [
+          {
+            "fieldPath": "md5",
+            "columnName": "md5",
+            "affinity": "TEXT",
+            "notNull": true
+          },
           {
             "fieldPath": "bookName",
             "columnName": "bookName",
@@ -149,14 +179,135 @@
           ],
           "autoGenerate": true
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_cached_chapters_url",
+            "unique": true,
+            "columnNames": [
+              "url"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_cached_chapters_url` ON `${TABLE_NAME}` (`url`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "my_signs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `bookUrl` TEXT NOT NULL, `chapterUrl` TEXT NOT NULL, `chapterName` TEXT NOT NULL, `saveTime` INTEGER NOT NULL, `edit` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bookUrl",
+            "columnName": "bookUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chapterUrl",
+            "columnName": "chapterUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chapterName",
+            "columnName": "chapterName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "saveTime",
+            "columnName": "saveTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "edit",
+            "columnName": "edit",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_my_signs_chapterUrl",
+            "unique": true,
+            "columnNames": [
+              "chapterUrl"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_my_signs_chapterUrl` ON `${TABLE_NAME}` (`chapterUrl`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "my_read_records",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `bookUrl` TEXT NOT NULL, `bookMd5` TEXT NOT NULL, `chapterPos` INTEGER NOT NULL, `pagePos` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bookUrl",
+            "columnName": "bookUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bookMd5",
+            "columnName": "bookMd5",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chapterPos",
+            "columnName": "chapterPos",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pagePos",
+            "columnName": "pagePos",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_my_read_records_bookMd5",
+            "unique": true,
+            "columnNames": [
+              "bookMd5"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_my_read_records_bookMd5` ON `${TABLE_NAME}` (`bookMd5`)"
+          }
+        ],
         "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fa380c1a63ce52ac147cbfe80396e218')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c946848eb9bd6dbc62b7def1bda1a1cd')"
     ]
   }
 }

@@ -1,6 +1,8 @@
 package com.mewlxy.readlib.model
 
+import android.content.Context
 import com.mewlxy.readlib.Constant
+import com.mewlxy.readlib.interfaces.OnBitmapLoadListener
 import com.mewlxy.readlib.interfaces.OnBookSignsListener
 import com.mewlxy.readlib.interfaces.OnChaptersListener
 import com.mewlxy.readlib.interfaces.OnReadRecordListener
@@ -33,8 +35,7 @@ abstract class BookRepository {
      */
     abstract fun requestChapterContents(mCollBook: BookBean, requestChapters: List<ChapterBean?>, onChaptersListener: OnChaptersListener)
 
-    abstract fun saveCollBook(mCollBook: BookBean?)
-    abstract fun saveBookChaptersWithAsync(bookChapterBeanList: List<ChapterBean?>?, mCollBook: BookBean?)
+    abstract fun saveBookChaptersWithAsync(bookChapterBeanList: List<ChapterBean>, mCollBook: BookBean)
     /**
      * 存储章节
      *
@@ -86,4 +87,10 @@ abstract class BookRepository {
      * 获取书签列表
      */
     abstract fun getSigns(bookUrl: String, bookSignsListener: OnBookSignsListener)
+
+
+    /**
+     * 加载插图
+     */
+    abstract fun loadBitmap(context: Context, imageUrl: String, bitmapLoadListener: OnBitmapLoadListener)
 }

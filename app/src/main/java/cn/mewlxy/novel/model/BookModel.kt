@@ -97,6 +97,7 @@ data class BookModel constructor(@PrimaryKey(autoGenerate = true)
     var chapter: Int = 0
     //当前的页码
     var pagePos: Int = 0
+    var bookFilePath = ""
 
     fun convert2BookBean(): BookBean {
         val bookBean = BookBean()
@@ -106,6 +107,7 @@ data class BookModel constructor(@PrimaryKey(autoGenerate = true)
         bookBean.id = this.id
         bookBean.url = this.url
         bookBean.favorite = this.favorite
+        bookBean.bookFilePath = this.bookFilePath
         bookBean.chapters = this.chapters.map {
 
             return@map it.convert2ChapterBean()
@@ -123,6 +125,7 @@ data class BookModel constructor(@PrimaryKey(autoGenerate = true)
             bookModel.desc = bookBean.desc
             bookModel.id = bookBean.id
             bookModel.url = bookBean.url
+            bookModel.bookFilePath = bookBean.bookFilePath
             bookModel.favorite = bookBean.favorite
             bookModel.chapters = bookBean.chapters.map {
                 return@map ChapterModel.convert2ChapterModel(it)

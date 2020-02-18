@@ -1,17 +1,25 @@
 package cn.mewlxy.novel.ui
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.content.Intent.*
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.PopupMenu
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import cn.mewlxy.novel.App
 import cn.mewlxy.novel.R
 import cn.mewlxy.novel.adapter.ShelfAdapter
 import cn.mewlxy.novel.appDB
 import cn.mewlxy.novel.base.BaseFragment
+import cn.mewlxy.novel.listener.OnItemPositionClickListener
 import cn.mewlxy.novel.model.BookModel
+import cn.mewlxy.novel.model.BookRepositoryImpl
+import cn.mewlxy.novel.model.FileModel
+import com.mewlxy.readlib.activity.NovelReadActivity
 import kotlinx.android.synthetic.main.fragment_shelf.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +31,7 @@ import kotlinx.coroutines.launch
  *
  */
 
-class ShelfFragment private constructor() : BaseFragment(), View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, ShelfAdapter.OnItemDeleteListener<BookModel> {
+class ShelfFragment private constructor() : BaseFragment(), View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, ShelfAdapter.OnItemDeleteListener<BookModel>, OnItemPositionClickListener<BookModel> {
     private lateinit var adapter: ShelfAdapter
     private val myBooks = ArrayList<BookModel>()
     private val searchResultBooks = ArrayList<BookModel>()
@@ -50,7 +58,8 @@ class ShelfFragment private constructor() : BaseFragment(), View.OnClickListener
 
     override fun initData() {
         adapter = ShelfAdapter(activity as Context, myBooks)
-        adapter.setOnItemDeleteListener(this)
+        adapter.onItemDeleteListener = this
+        adapter.itemPositionClickListener = this
         rv_shelf.adapter = adapter
         refresh_layout.setOnRefreshListener(this)
 
@@ -105,6 +114,7 @@ class ShelfFragment private constructor() : BaseFragment(), View.OnClickListener
         }
     }
 
+
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.iv_title_more -> {
@@ -116,6 +126,10 @@ class ShelfFragment private constructor() : BaseFragment(), View.OnClickListener
                         R.id.shelf_manage -> {
                             tv_complete.visibility = View.VISIBLE
                             adapter.setManageMode(true)
+                        }
+                        R.id.shelf_add -> {
+                            startActivityForResult(Intent(activity, ExploreActivity::class.java), 1)
+
                         }
 
                     }
@@ -144,6 +158,37 @@ class ShelfFragment private constructor() : BaseFragment(), View.OnClickListener
                 adapter.notifyDataSetChanged()
                 dismissLoading()
             }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            val bookModel = BookModel()
+            val fileModel = data?.getSerializableExtra("book_file") as FileModel
+            bookModel.name = fileModel.name
+            bookModel.bookFilePath = fileModel.path
+            bookModel.favorite = 1
+            uiScope.launch(Dispatchers.IO) {
+                try {
+                    appDB.bookDao().inserts(bookModel)
+                } catch (e: Exception) {
+                }
+                launch(Dispatchers.Main) {
+                    fetchData(true)
+                }
+            }
+        }
+    }
+
+    override fun itemClick(position: Int, t: BookModel) {
+        if (t.url.isNotBlank()) {
+            startActivity(Intent(activity, BookDetailActivity::class.java)
+                    .putExtra("name", t.name)
+                    .putExtra("bookUrl", t.url))
+        } else {
+            val bookBean = t.convert2BookBean()
+            bookBean.isLocal = 1
+            NovelReadActivity.start(context as Activity, bookBean, BookRepositoryImpl.instance)
         }
     }
 

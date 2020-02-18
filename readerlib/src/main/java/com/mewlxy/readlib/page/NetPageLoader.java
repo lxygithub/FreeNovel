@@ -209,7 +209,7 @@ public class NetPageLoader extends PageLoader {
             mCollBook.setUpdate(0);
             mCollBook.setLastRead(String.valueOf(System.currentTimeMillis()));
             //直接更新
-            bookRepository.saveCollBook(mCollBook);
+            bookRepository.saveCollBookWithAsync(mCollBook);
         }
     }
 }

@@ -20,7 +20,7 @@ interface ChapterDao {
     fun getChapterContent(url: String): String?
 
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun inserts(vararg chapters: ChapterModel)
 
     @Update(onConflict = OnConflictStrategy.REPLACE)

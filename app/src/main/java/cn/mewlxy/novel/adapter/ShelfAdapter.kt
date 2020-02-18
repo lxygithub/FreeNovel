@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import cn.mewlxy.novel.R
 import cn.mewlxy.novel.imageloader.ImageLoader
+import cn.mewlxy.novel.listener.OnItemPositionClickListener
 import cn.mewlxy.novel.model.BookModel
 import cn.mewlxy.novel.ui.BookDetailActivity
 
@@ -20,11 +21,8 @@ import cn.mewlxy.novel.ui.BookDetailActivity
  */
 class ShelfAdapter(val context: Context, val books: ArrayList<BookModel>) : RecyclerView.Adapter<ShelfAdapter.ViewHolder>() {
     private var manage = false
-    private var onItemDeleteListener: OnItemDeleteListener<BookModel>? = null
-
-    fun setOnItemDeleteListener(onItemDeleteListener: OnItemDeleteListener<BookModel>?) {
-        this.onItemDeleteListener = onItemDeleteListener
-    }
+    var onItemDeleteListener: OnItemDeleteListener<BookModel>? = null
+    var itemPositionClickListener: OnItemPositionClickListener<BookModel>? = null
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val ivCover: ImageView = itemView.findViewById(R.id.iv_item_cover)
@@ -58,9 +56,7 @@ class ShelfAdapter(val context: Context, val books: ArrayList<BookModel>) : Recy
             }
         } else {
             holder.itemView.setOnClickListener {
-                context.startActivity(Intent(context, BookDetailActivity::class.java)
-                        .putExtra("name", bookModel.name)
-                        .putExtra("bookUrl", bookModel.url))
+                itemPositionClickListener?.itemClick(position, bookModel)
             }
         }
     }

@@ -69,43 +69,7 @@ object Constant {
         Color.parseColor("#91CED5")
     )
 
-    //榜单类型
-    interface ListType {
-        companion object {
-            const val Human = "1"
-            const val EditRecommend = "2"
-            const val HotSearch = "3"
-        }
-    }
 
-    interface GenderType {
-        companion object {
-            const val Man = "1"
-            const val Woman = "2"
-        }
-    }
-
-    interface DateTyp {
-        companion object {
-            const val General = "3"
-            const val Month = "2"
-            const val Week = "1"
-        }
-    }
-
-    interface Bundle {
-        companion object {
-            const val CategoryId = "category_id"
-            const val mTitle = "mTitle"
-            const val BookId = "BookId"
-        }
-    }
-
-    interface RequestCode {
-        companion object {
-            const val REQUEST_READ = 1
-        }
-    }
 
     interface ResultCode {
         companion object {

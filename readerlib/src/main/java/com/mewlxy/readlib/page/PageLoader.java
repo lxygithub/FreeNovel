@@ -1,5 +1,6 @@
 package com.mewlxy.readlib.page;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -9,28 +10,20 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-
+import android.os.AsyncTask;
 import android.text.TextPaint;
 import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.mewlxy.readlib.Constant;
 import com.mewlxy.readlib.R;
+import com.mewlxy.readlib.interfaces.OnBitmapLoadListener;
 import com.mewlxy.readlib.interfaces.OnReadRecordListener;
 import com.mewlxy.readlib.model.BookBean;
+import com.mewlxy.readlib.model.BookRepository;
 import com.mewlxy.readlib.model.ChapterBean;
 import com.mewlxy.readlib.model.ReadRecordBean;
-import com.mewlxy.readlib.model.BookRepository;
 import com.mewlxy.readlib.utlis.DateUtil;
 import com.mewlxy.readlib.utlis.IOUtils;
-import com.mewlxy.readlib.utlis.RxUtils;
 import com.mewlxy.readlib.utlis.ScreenUtils;
 import com.mewlxy.readlib.utlis.StringUtils;
 
@@ -44,10 +37,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.reactivex.Single;
-import io.reactivex.SingleObserver;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.disposables.Disposable;
+import androidx.core.content.ContextCompat;
 
 /**
  * Created by zlj
@@ -106,7 +96,6 @@ public abstract class PageLoader {
     // 存储阅读记录类
     protected ReadRecordBean mBookRecord;
 
-    private Disposable mPreLoadDisp;
 
     /*****************params**************************/
     // 当前的状态
@@ -156,6 +145,7 @@ public abstract class PageLoader {
     //上一章的记录
     private int mLastChapterPos = 0;
     protected BookRepository bookRepository;
+    private AsyncTask<Integer, Void, List<TxtPage>> asyncTask;
 
     /*****************************init params*******************************/
     public PageLoader(PageView pageView, BookBean collBook, BookRepository bookRepository) {
@@ -301,8 +291,8 @@ public abstract class PageLoader {
         // 将上一章的缓存设置为null
         mPrePageList = null;
         // 如果当前下一章缓存正在执行，则取消
-        if (mPreLoadDisp != null) {
-            mPreLoadDisp.dispose();
+        if (asyncTask != null) {
+            asyncTask.cancel(true);
         }
         // 将下一章缓存设置为null
         mNextPageList = null;
@@ -613,7 +603,7 @@ public abstract class PageLoader {
                     public void onSuccess(@NotNull ReadRecordBean readRecord) {
                         if (mCollBook.getFavorite() == 1) {
                             mBookRecord = readRecord;
-                        }else {
+                        } else {
                             mBookRecord = new ReadRecordBean();
                         }
                         mCurChapterPos = mBookRecord.getChapterPos();
@@ -627,14 +617,15 @@ public abstract class PageLoader {
                 });
 
 
-
-
     }
 
     /**
      * 打开指定章节
      */
     public void openChapter() {
+        if (isClose) {
+            return;
+        }
         isFirstOpen = false;
 
         if (!mPageView.isPrepare()) {
@@ -691,8 +682,8 @@ public abstract class PageLoader {
         isChapterListPrepare = false;
         isClose = true;
 
-        if (mPreLoadDisp != null) {
-            mPreLoadDisp.dispose();
+        if (asyncTask != null) {
+            asyncTask.cancel(false);
         }
 
         clearList(mChapterList);
@@ -943,17 +934,16 @@ public abstract class PageLoader {
             }
 
             if (!TextUtils.isEmpty(getCurPage().getPic())) {
-                Glide.with(mContext).asBitmap().load(getCurPage().getPic()).thumbnail(0.1f).into(new SimpleTarget<Bitmap>() {
+                bookRepository.loadBitmap(mContext, getCurPage().getPic(), new OnBitmapLoadListener() {
                     @Override
-                    public void onLoadStarted(@Nullable Drawable placeholder) {
+                    public void onLoadStart() {
                         canvas.save();
                         drawCenter(mContext.getString(R.string.pic_loading), canvas);
                         canvas.restore();
                     }
 
                     @Override
-                    public void onResourceReady(@NonNull Bitmap resource, Transition<? super Bitmap> transition) {
-
+                    public void onResourceReady(@NotNull Bitmap resource) {
                         if (resource.getWidth() > mDisplayWidth) {
                             resource = scaleBitmap(resource);
                         }
@@ -963,7 +953,13 @@ public abstract class PageLoader {
                             canvas.drawBitmap(resource, pivotX, pivotY, mTextPaint);
                             mPageView.invalidate();
                         }
+                    }
 
+                    @Override
+                    public void onError(@NotNull String errorMsg) {
+                        canvas.save();
+                        drawCenter(errorMsg, canvas);
+                        canvas.restore();
                     }
                 });
             }
@@ -1213,6 +1209,7 @@ public abstract class PageLoader {
     }
 
     // 预加载下一章
+    @SuppressLint("StaticFieldLeak")
     private void preLoadNextChapter() {
         int nextChapter = mCurChapterPos + 1;
 
@@ -1223,29 +1220,34 @@ public abstract class PageLoader {
         }
 
         //如果之前正在加载则取消
-        if (mPreLoadDisp != null) {
-            mPreLoadDisp.dispose();
+        if (asyncTask != null) {
+            if (asyncTask.getStatus() == AsyncTask.Status.RUNNING) {
+                asyncTask.cancel(true);
+            }
         }
 
-        //调用异步进行预加载加载
-        Single.create((SingleOnSubscribe<List<TxtPage>>) e -> e.onSuccess(loadPageList(nextChapter))).compose(RxUtils::toSimpleSingle)
-                .subscribe(new SingleObserver<List<TxtPage>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        mPreLoadDisp = d;
-                    }
+        asyncTask = new AsyncTask<Integer, Void, List<TxtPage>>() {
+            @Override
+            protected List<TxtPage> doInBackground(Integer... integers) {
+                List<TxtPage> pageList = new ArrayList<>();
+                try {
+                    pageList = loadPageList(integers[0]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return pageList;
+            }
 
-                    @Override
-                    public void onSuccess(List<TxtPage> pages) {
-                        mNextPageList = pages;
-                    }
+            @Override
+            protected void onPostExecute(List<TxtPage> txtPages) {
+                super.onPostExecute(txtPages);
+                mNextPageList = txtPages;
+            }
+        };
+        asyncTask.execute(nextChapter);
 
-                    @Override
-                    public void onError(Throwable e) {
-                        //无视错误
-                    }
-                });
     }
+
 
     // 取消翻页
     void pageCancel() {

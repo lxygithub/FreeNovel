@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "3cc0ce9eb78b53b78ec76e9e976697da",
+    "identityHash": "b2fc7c42ad595db2a04efb063825b2f2",
     "entities": [
       {
         "tableName": "my_shelf",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `url` TEXT NOT NULL, `category` TEXT NOT NULL, `status` TEXT NOT NULL, `typeUrl` TEXT NOT NULL, `coverUrl` TEXT NOT NULL, `bookAuthor` TEXT NOT NULL, `desc` TEXT NOT NULL, `source` TEXT NOT NULL, `chaptersUrl` TEXT NOT NULL, `charCount` INTEGER NOT NULL, `chapterCount` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, `lastRead` TEXT NOT NULL, `chapter` INTEGER NOT NULL, `pagePos` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `url` TEXT NOT NULL, `category` TEXT NOT NULL, `status` TEXT NOT NULL, `typeUrl` TEXT NOT NULL, `coverUrl` TEXT NOT NULL, `bookAuthor` TEXT NOT NULL, `desc` TEXT NOT NULL, `source` TEXT NOT NULL, `chaptersUrl` TEXT NOT NULL, `charCount` INTEGER NOT NULL, `chapterCount` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, `lastRead` TEXT NOT NULL, `chapter` INTEGER NOT NULL, `pagePos` INTEGER NOT NULL, `bookFilePath` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
         "fields": [
           {
             "fieldPath": "name",
@@ -105,6 +105,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "bookFilePath",
+            "columnName": "bookFilePath",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
@@ -122,8 +128,14 @@
       },
       {
         "tableName": "cached_chapters",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookName` TEXT NOT NULL, `bookUrl` TEXT NOT NULL, `index` INTEGER NOT NULL, `name` TEXT NOT NULL, `content` TEXT NOT NULL, `url` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`md5` TEXT NOT NULL, `bookName` TEXT NOT NULL, `bookUrl` TEXT NOT NULL, `index` INTEGER NOT NULL, `name` TEXT NOT NULL, `content` TEXT NOT NULL, `url` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
         "fields": [
+          {
+            "fieldPath": "md5",
+            "columnName": "md5",
+            "affinity": "TEXT",
+            "notNull": true
+          },
           {
             "fieldPath": "bookName",
             "columnName": "bookName",
@@ -301,7 +313,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3cc0ce9eb78b53b78ec76e9e976697da')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b2fc7c42ad595db2a04efb063825b2f2')"
     ]
   }
 }

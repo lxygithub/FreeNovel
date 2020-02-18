@@ -1,11 +1,18 @@
 package cn.mewlxy.novel.model
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.text.TextUtils
 import android.util.Log
 import cn.mewlxy.novel.appDB
 import cn.mewlxy.novel.jsoup.DomSoup
 import cn.mewlxy.novel.jsoup.OnJSoupListener
 import cn.mewlxy.novel.utils.showToast
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
+import com.mewlxy.readlib.interfaces.OnBitmapLoadListener
 import com.mewlxy.readlib.interfaces.OnBookSignsListener
 import com.mewlxy.readlib.interfaces.OnChaptersListener
 import com.mewlxy.readlib.interfaces.OnReadRecordListener
@@ -14,7 +21,10 @@ import com.mewlxy.readlib.utlis.MD5Utils
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jsoup.nodes.Document
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
@@ -165,10 +175,17 @@ open class BookRepositoryImpl : BookRepository() {
                 })
     }
 
-    override fun saveCollBook(mCollBook: BookBean?) {
-    }
 
-    override fun saveBookChaptersWithAsync(bookChapterBeanList: List<ChapterBean?>?, mCollBook: BookBean?) {
+    override fun saveBookChaptersWithAsync(bookChapterBeanList: List<ChapterBean>, mCollBook: BookBean) {
+        uiScope.launch(Dispatchers.IO) {
+            try {
+                appDB.chapterDao().inserts(*(bookChapterBeanList.map {
+                    return@map ChapterModel.convert2ChapterModel(it)
+                }.toTypedArray()))
+            } catch (e: Exception) {
+            }
+        }
+
     }
 
     override fun saveCollBookWithAsync(mCollBook: BookBean) {
@@ -178,7 +195,7 @@ open class BookRepositoryImpl : BookRepository() {
             uiScope.launch(Dispatchers.IO) {
                 val url = appDB.bookDao().queryFavoriteByUrl(bookModel.url)?.url
                 val favorite = appDB.bookDao().queryFavoriteByUrl(bookModel.url)?.favorite
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     if (TextUtils.isEmpty(url) && favorite == null) {
                         launch(Dispatchers.IO) {
                             bookModel.favorite = 1
@@ -261,5 +278,22 @@ open class BookRepositoryImpl : BookRepository() {
             bookSignsListener.onError(e.toString())
         }
 
+    }
+
+    override fun loadBitmap(context: Context, imageUrl: String, bitmapLoadListener: OnBitmapLoadListener) {
+        try {
+            Glide.with(context).asBitmap().load(imageUrl).thumbnail(0.1f).into(object : SimpleTarget<Bitmap?>() {
+                override fun onLoadStarted(placeholder: Drawable?) {
+                    bitmapLoadListener.onLoadStart()
+                }
+
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap?>?) {
+                    bitmapLoadListener.onResourceReady(resource)
+                }
+            })
+        } catch (e: Exception) {
+            bitmapLoadListener.onError("加载失败")
+            showToast(e.toString())
+        }
     }
 }

@@ -17,9 +17,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
 
 /**
  * Created by zlj
@@ -193,18 +190,6 @@ public class FileUtils {
         return txtFiles;
     }
 
-    //由于遍历比较耗时
-    public static Single<List<File>> getSDTxtFile() {
-        //外部存储卡路径
-        final String rootPath = Environment.getExternalStorageDirectory().getPath();
-        return Single.create(new SingleOnSubscribe<List<File>>() {
-            @Override
-            public void subscribe(SingleEmitter<List<File>> e) throws Exception {
-                List<File> files = getTxtFiles(rootPath, 0);
-                e.onSuccess(files);
-            }
-        });
-    }
 
     //获取文件的编码格式
     public static Charset getCharset(String fileName) {

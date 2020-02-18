@@ -144,7 +144,11 @@ open class NovelReadActivity : NovelBaseActivity() {
             toggleMenu(false)
         }
 
-        requestChapters()
+        if (mCollBook.isLocal == 0) {
+            requestChapters()
+        } else {
+            mPageLoader.refreshChapterList()
+        }
     }
 
     /**

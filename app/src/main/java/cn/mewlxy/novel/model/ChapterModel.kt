@@ -19,6 +19,7 @@ data class ChapterModel constructor(@PrimaryKey(autoGenerate = true)
                                     var id: Int) : Parcelable {
     constructor() : this(0)
 
+    var md5 =""
     /**
      * 书名
      */
@@ -92,6 +93,7 @@ data class ChapterModel constructor(@PrimaryKey(autoGenerate = true)
             chapterModel.id = chapterBean.id
             chapterModel.name = chapterBean.name
             chapterModel.url = chapterBean.url
+            chapterModel.md5 = chapterBean.md5
             chapterModel.content = chapterBean.content
             chapterModel.bookName = chapterBean.bookName
             chapterModel.bookUrl = chapterBean.bookUrl
@@ -105,6 +107,7 @@ data class ChapterModel constructor(@PrimaryKey(autoGenerate = true)
         chapterBean.id = this.id
         chapterBean.name = this.name
         chapterBean.url = this.url
+        chapterBean.md5 = this.md5
         chapterBean.content = this.content
         chapterBean.bookName = this.bookName
         chapterBean.bookUrl = this.bookUrl
