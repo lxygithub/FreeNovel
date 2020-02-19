@@ -14,7 +14,6 @@ import com.mewlxy.readlib.utlis.DateUtil;
 import com.mewlxy.readlib.utlis.FileUtils;
 import com.mewlxy.readlib.utlis.IOUtils;
 import com.mewlxy.readlib.utlis.MD5Utils;
-import com.mewlxy.readlib.utlis.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -378,7 +377,7 @@ public class LocalPageLoader extends PageLoader {
         // 对于文件是否存在，或者为空的判断，不作处理。 ==> 在文件打开前处理过了。
         mBookFile = new File(mCollBook.getBookFilePath());
         //获取文件编码
-        mCharset = FileUtils.getCharsetNew(mBookFile.getAbsolutePath());
+        mCharset = FileUtils.getCharset(mBookFile.getAbsolutePath());
 
         String lastModified = DateUtil.INSTANCE.dateConvert(mBookFile.lastModified(), Constant.FORMAT_BOOK_DATE);
 

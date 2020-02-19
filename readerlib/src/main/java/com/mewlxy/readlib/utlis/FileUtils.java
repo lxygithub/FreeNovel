@@ -4,8 +4,8 @@ import android.os.Environment;
 
 import com.mewlxy.readlib.base.ContextProvider;
 
-import org.mozilla.universalchardet.UniversalDetector;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -192,29 +192,58 @@ public class FileUtils {
     }
 
 
-    public static String getCharsetNew(String fileName) {
-        UniversalDetector detector = new UniversalDetector(null);
-        try {
-            FileInputStream fis = new FileInputStream(new File(fileName));
-            byte[] buf = new byte[5000];
-            int read = fis.read(buf, 0, 5000);
-            int nread;
-            while ((nread = fis.read(buf)) > 0 && !detector.isDone()) {
-                detector.handleData(buf, 0, nread);
-            }
-            detector.dataEnd();
-            String encoding = detector.getDetectedCharset();
-            if (encoding != null) {
-                return encoding;
-            } else {
-                return "UTF-8";
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            detector.reset();
-        }
-        return "UTF-8";
+ public static String getCharset(String fileName) {
+     BufferedInputStream bis = null;
+     Charset charset = Charset.GBK;
+     byte[] first3Bytes = new byte[3];
+     try {
+         boolean checked = false;
+         bis = new BufferedInputStream(new FileInputStream(fileName));
+         bis.mark(0);
+         int read = bis.read(first3Bytes, 0, 3);
+         if (read == -1)
+             return charset.getCode();
+         if (first3Bytes[0] == (byte) 0xEF
+                 && first3Bytes[1] == (byte) 0xBB
+                 && first3Bytes[2] == (byte) 0xBF) {
+             charset = Charset.UTF8;
+             checked = true;
+         }
+
+         bis.mark(0);
+         if (!checked) {
+             while ((read = bis.read()) != -1) {
+                 if (read >= 0xF0)
+                     break;
+                 if (0x80 <= read && read <= 0xBF) // 单独出现BF以下的，也算是GBK
+                     break;
+                 if (0xC0 <= read && read <= 0xDF) {
+                     read = bis.read();
+                     if (0x80 <= read && read <= 0xBF) // 双字节 (0xC0 - 0xDF)
+                         // (0x80 - 0xBF),也可能在GB编码内
+                         continue;
+                     else
+                         break;
+                 } else if (0xE0 <= read) {// 也有可能出错，但是几率较小
+                     read = bis.read();
+                     if (0x80 <= read && read <= 0xBF) {
+                         read = bis.read();
+                         if (0x80 <= read && read <= 0xBF) {
+                             charset = Charset.UTF8;
+                             break;
+                         } else
+                             break;
+                     } else
+                         break;
+                 }
+             }
+         }
+     } catch (Exception e) {
+         e.printStackTrace();
+     } finally {
+         IOUtils.INSTANCE.close(bis);
+     }
+     return charset.getCode();
     }
 
 }

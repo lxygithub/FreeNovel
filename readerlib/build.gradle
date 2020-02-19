@@ -27,7 +27,6 @@ android {
 }
 
 dependencies {
-    implementation files('libs/chardet.jar')
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.core:core-ktx:1.2.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -37,7 +36,6 @@ dependencies {
     implementation files('libs/ZHConverter.jar')
     // For developers using AndroidX in their applications
     implementation 'pub.devrel:easypermissions:3.0.0'
-    implementation files('libs/juniversalchardet-1.0.3.jar')
 }
 repositories {
     mavenCentral()
