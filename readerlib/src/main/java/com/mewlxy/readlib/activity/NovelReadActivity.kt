@@ -155,7 +155,7 @@ open class NovelReadActivity : NovelBaseActivity() {
      * 获取章节列表
      */
     private fun requestChapters(start: Int = 0) {
-        bookRepository.chapterBeans(mCollBook, object : OnChaptersListener {
+        bookRepository!!.chapterBeans(mCollBook, object : OnChaptersListener {
             override fun onStart() {
             }
 
@@ -220,7 +220,7 @@ open class NovelReadActivity : NovelBaseActivity() {
                     }
 
                     override fun chapterContents(requestChapters: List<ChapterBean>) {
-                        bookRepository.requestChapterContents(mCollBook, requestChapters, object : OnChaptersListener {
+                        bookRepository!!.requestChapterContents(mCollBook, requestChapters, object : OnChaptersListener {
                             override fun onStart() {
                             }
 
@@ -340,11 +340,11 @@ open class NovelReadActivity : NovelBaseActivity() {
 
         tvAddMark.setOnClickListener {
             mMarkAdapter.edit = false
-            if (bookRepository.hasSigned(mCurrentChapter.url)) {
+            if (bookRepository!!.hasSigned(mCurrentChapter.url)) {
                 showToast(getString(R.string.sign_exist))
                 return@setOnClickListener
             }
-            bookRepository.addSign(mCollBook.url, mCurrentChapter.url, mCurrentChapter.name, object : OnBookSignsListener {
+            bookRepository!!.addSign(mCollBook.url, mCurrentChapter.url, mCurrentChapter.name, object : OnBookSignsListener {
                 override fun onStart() {
                 }
 
@@ -364,7 +364,7 @@ open class NovelReadActivity : NovelBaseActivity() {
             if (mMarkAdapter.edit) {
                 val sign = mMarkAdapter.selectList
                 if (sign.isNotEmpty()) {
-                    bookRepository.deleteSign(*sign.toTypedArray())
+                    bookRepository!!.deleteSign(*sign.toTypedArray())
                     mMarks.clear()
                     mMarkAdapter.notifyDataSetChanged()
                 }
@@ -530,7 +530,7 @@ open class NovelReadActivity : NovelBaseActivity() {
 
 
     private fun updateMark() {
-        bookRepository.getSigns(mCollBook.url, object : OnBookSignsListener {
+        bookRepository!!.getSigns(mCollBook.url, object : OnBookSignsListener {
             override fun onStart() {
             }
 
@@ -548,10 +548,12 @@ open class NovelReadActivity : NovelBaseActivity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        when (keyCode) {
-            KeyEvent.KEYCODE_VOLUME_UP -> return mPageLoader.skipToPrePage()
+        if (bookRepository!!.canTurnPageByVolume()) {
+            when (keyCode) {
+                KeyEvent.KEYCODE_VOLUME_UP -> return mPageLoader.skipToPrePage()
 
-            KeyEvent.KEYCODE_VOLUME_DOWN -> return mPageLoader.skipToNextPage()
+                KeyEvent.KEYCODE_VOLUME_DOWN -> return mPageLoader.skipToNextPage()
+            }
         }
         return super.onKeyDown(keyCode, event)
     }
@@ -582,7 +584,7 @@ open class NovelReadActivity : NovelBaseActivity() {
                         //设置阅读时间
                         mCollBook.lastRead = System.currentTimeMillis().toString()
 
-                        bookRepository.saveCollBookWithAsync(mCollBook)
+                        bookRepository!!.saveCollBookWithAsync(mCollBook)
                         mCollBook.favorite = 1
 
                         exit()
@@ -615,6 +617,7 @@ open class NovelReadActivity : NovelBaseActivity() {
         super.onDestroy()
         mPageLoader.closeBook()
         unregisterReceiver(mReceiver)
+        bookRepository = null
     }
 
 //    override fun onDownloadChange(pos: Int, status: Int, msg: String) {
@@ -648,10 +651,9 @@ open class NovelReadActivity : NovelBaseActivity() {
 
     companion object {
 
-        private lateinit var bookRepository: BookRepository
+        private var bookRepository: BookRepository?=null
         private const val TAG = "NovelReadActivity"
         const val EXTRA_COLL_BOOK = "extra_coll_book"
-        const val EXTRA_IS_COLLECTED = "extra_is_collected"
         private const val WHAT_CATEGORY = 1
         private const val WHAT_CHAPTER = 2
 

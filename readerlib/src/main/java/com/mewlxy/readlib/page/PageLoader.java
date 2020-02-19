@@ -857,7 +857,7 @@ public abstract class PageLoader {
             String tip = "";
             switch (mStatus) {
                 case STATUS_LOADING:
-                    tip = "正在拼命加载中...";
+                    tip = "首次加载比较慢，请耐心等待...";
                     break;
                 case STATUS_ERROR:
                     tip = "加载失败(点击边缘重试)";

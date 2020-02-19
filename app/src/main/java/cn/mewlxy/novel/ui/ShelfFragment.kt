@@ -79,7 +79,7 @@ class ShelfFragment private constructor() : BaseFragment(), View.OnClickListener
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
         })
-        fetchData(false)
+        fetchData(true)
     }
 
     private fun fetchData(refresh: Boolean) {

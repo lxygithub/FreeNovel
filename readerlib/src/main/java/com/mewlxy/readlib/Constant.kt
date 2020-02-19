@@ -53,22 +53,21 @@ object Constant {
 
     //BookCachePath (因为getCachePath引用了Context，所以必须是静态变量，不能够是静态常量)
     @kotlin.jvm.JvmField
-    var BOOK_CACHE_PATH: String = (FileUtils.getCachePath() + File.separator
-            + "book_cache" + File.separator)
+    var BOOK_CACHE_PATH: String = (FileUtils.getDownloadPath() + File.separator
+            + "free_novel" + File.separator)
 
     @kotlin.jvm.JvmField
     val tagColors = intArrayOf(
-        Color.parseColor("#90C5F0"),
-        Color.parseColor("#91CED5"),
-        Color.parseColor("#F88F55"),
-        Color.parseColor("#C0AFD0"),
-        Color.parseColor("#E78F8F"),
-        Color.parseColor("#67CCB7"),
-        Color.parseColor("#F6BC7E"),
-        Color.parseColor("#90C5F0"),
-        Color.parseColor("#91CED5")
+            Color.parseColor("#90C5F0"),
+            Color.parseColor("#91CED5"),
+            Color.parseColor("#F88F55"),
+            Color.parseColor("#C0AFD0"),
+            Color.parseColor("#E78F8F"),
+            Color.parseColor("#67CCB7"),
+            Color.parseColor("#F6BC7E"),
+            Color.parseColor("#90C5F0"),
+            Color.parseColor("#91CED5")
     )
-
 
 
     interface ResultCode {

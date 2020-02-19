@@ -6,6 +6,8 @@ import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.room.Room
 import cn.mewlxy.novel.db.AppDatabase
+import com.mewlxy.readlib.Constant
+import java.io.File
 import kotlin.properties.Delegates
 
 lateinit var appDB: AppDatabase
@@ -29,6 +31,7 @@ class App : Application() {
                 AppDatabase::class.java, "db_novel"
 
         ).build()
+
     }
 
 

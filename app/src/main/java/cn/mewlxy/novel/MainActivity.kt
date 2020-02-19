@@ -15,6 +15,8 @@ import cn.mewlxy.novel.ui.MeFragment
 import cn.mewlxy.novel.ui.ShelfFragment
 import cn.mewlxy.novel.ui.SquareFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.mewlxy.readlib.Constant
+import java.io.File
 
 /**
  * description：
@@ -35,7 +37,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         bottomNavigationView = findViewById(R.id.bottom_navigation)
         viewPager2 = findViewById(R.id.view_pager)
         viewPager2.adapter = ViewPagerAdapter(this)
-        viewPager2.offscreenPageLimit = 4
+        viewPager2.offscreenPageLimit = 3
 
         bottomNavigationView.setOnNavigationItemSelectedListener(this)
 
@@ -50,7 +52,9 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     }
 
     override fun permissionsGranted() {
-
+        if (!File(Constant.BOOK_CACHE_PATH).exists()) {
+            File(Constant.BOOK_CACHE_PATH).mkdir()
+        }
     }
 
 
@@ -62,17 +66,18 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
 
         when (item.itemId) {
-            R.id.navigation_home -> {
+//            R.id.navigation_home -> {
+//                viewPager2.currentItem = 0
+//            }
+
+            R.id.navigation_square -> {
                 viewPager2.currentItem = 0
             }
             R.id.navigation_shelf -> {
                 viewPager2.currentItem = 1
             }
-            R.id.navigation_square -> {
-                viewPager2.currentItem = 2
-            }
             R.id.navigation_me -> {
-                viewPager2.currentItem = 3
+                viewPager2.currentItem = 2
             }
         }
         return true
@@ -81,16 +86,16 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     class ViewPageChangeCallback constructor(var bottomNavigationView: BottomNavigationView) : OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             when (position) {
+//                0 -> {
+//                    bottomNavigationView.selectedItemId = R.id.navigation_home
+//                }
                 0 -> {
-                    bottomNavigationView.selectedItemId = R.id.navigation_home
+                    bottomNavigationView.selectedItemId = R.id.navigation_square
                 }
                 1 -> {
                     bottomNavigationView.selectedItemId = R.id.navigation_shelf
                 }
                 2 -> {
-                    bottomNavigationView.selectedItemId = R.id.navigation_square
-                }
-                3 -> {
                     bottomNavigationView.selectedItemId = R.id.navigation_me
                 }
             }
@@ -98,18 +103,18 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     }
 }
 
-const val FRAG_HOME: Int = 0
+//const val FRAG_HOME: Int = 0
+const val FRAG_SQUARE: Int = 0
 const val FRAG_SHELF: Int = 1
-const val FRAG_SQUARE: Int = 2
-const val FRAG_ME: Int = 3
+const val FRAG_ME: Int = 2
 
 class ViewPagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
-    private val fragments: SparseArray<BaseFragment> = SparseArray(4)
+    private val fragments: SparseArray<BaseFragment> = SparseArray(3)
 
     init {
-        fragments.append(FRAG_HOME, HomeFragment.instance)
-        fragments.append(FRAG_SHELF, ShelfFragment.instance)
+//        fragments.append(FRAG_HOME, HomeFragment.instance)
         fragments.append(FRAG_SQUARE, SquareFragment.instance)
+        fragments.append(FRAG_SHELF, ShelfFragment.instance)
         fragments.append(FRAG_ME, MeFragment.instance)
     }
 

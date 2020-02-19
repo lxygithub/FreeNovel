@@ -54,9 +54,9 @@ class ExploreActivity : BaseActivity(), OnItemPositionClickListener<FileModel>, 
                     .filter {
                         val filePath = it.absolutePath
                         return@filter it.isDirectory || (filePath.endsWith(".txt")
-                                || filePath.endsWith(".pdf")
-                                || filePath.endsWith(".mobi")
-                                || filePath.endsWith(".epub")
+//                                || filePath.endsWith(".pdf")
+//                                || filePath.endsWith(".mobi")
+//                                || filePath.endsWith(".epub")
                                 )
                     }
                     .map {

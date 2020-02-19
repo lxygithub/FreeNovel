@@ -48,7 +48,11 @@ class ShelfAdapter(val context: Context, val books: ArrayList<BookModel>) : Recy
         val bookModel = books[position]
         holder.ivDelete.visibility = if (manage) View.VISIBLE else View.GONE
         holder.ivCover.alpha = if (bookModel.url.isNotEmpty() && manage) 0.5f else 1f
-        ImageLoader.loadImage(context as Activity, holder.ivCover, bookModel.coverUrl)
+        if (bookModel.coverUrl.isNotBlank()) {
+            ImageLoader.loadImage(context as Activity, holder.ivCover, bookModel.coverUrl)
+        } else {
+            holder.ivCover.setImageResource(R.drawable.ic_no_thumb)
+        }
         holder.tvName.text = bookModel.name
         if (manage) {
             holder.itemView.setOnClickListener {

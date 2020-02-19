@@ -18,6 +18,7 @@ import com.mewlxy.readlib.interfaces.OnChaptersListener
 import com.mewlxy.readlib.interfaces.OnReadRecordListener
 import com.mewlxy.readlib.model.*
 import com.mewlxy.readlib.utlis.MD5Utils
+import com.mewlxy.readlib.utlis.SpUtil
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -295,5 +296,9 @@ open class BookRepositoryImpl : BookRepository() {
             bitmapLoadListener.onError("加载失败")
             showToast(e.toString())
         }
+    }
+
+    override fun canTurnPageByVolume(): Boolean {
+        return SpUtil.getBooleanValue("volume_turn_page", true)
     }
 }

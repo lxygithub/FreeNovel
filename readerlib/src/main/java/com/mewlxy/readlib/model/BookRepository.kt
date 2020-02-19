@@ -93,4 +93,9 @@ abstract class BookRepository {
      * 加载插图
      */
     abstract fun loadBitmap(context: Context, imageUrl: String, bitmapLoadListener: OnBitmapLoadListener)
+
+    /**
+     * 音量键翻页开关
+     */
+    abstract fun canTurnPageByVolume(): Boolean
 }

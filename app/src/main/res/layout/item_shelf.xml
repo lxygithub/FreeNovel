@@ -33,6 +33,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:textColor="@color/black_text"
         app:layout_constraintEnd_toEndOf="@+id/iv_item_cover"
         app:layout_constraintStart_toStartOf="@+id/iv_item_cover"
