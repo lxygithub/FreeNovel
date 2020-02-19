@@ -6,6 +6,7 @@ apply plugin: 'kotlin-kapt'
 android {
     compileSdkVersion 28
     defaultConfig {
+        multiDexEnabled true
         applicationId "cn.mewlxy.novel"
         minSdkVersion 19
         targetSdkVersion 28
@@ -98,6 +99,8 @@ dependencies {
 
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
     api 'com.github.bumptech.glide:glide:4.9.0'
+
+    implementation 'androidx.multidex:multidex:2.0.1'
 
 }
 repositories {

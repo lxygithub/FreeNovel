@@ -65,7 +65,9 @@ class ExploreActivity : BaseActivity(), OnItemPositionClickListener<FileModel>, 
                         fileModel.path = it.absolutePath
                         fileModel.isDirectory = it.isDirectory
                         return@map fileModel
-                    }.toMutableList()
+                    }.toMutableList().sortedWith(Comparator { t1, t2 ->
+                        return@Comparator t1.name.compareTo(t2.name)
+                    })
 
             files.clear()
             files.addAll(listFiles)
