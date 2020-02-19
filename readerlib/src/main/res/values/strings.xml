@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">轻之阅读</string>
     <string name="hello">哈喽</string>
     <string name="book">书架</string>
     <string name="recommend">推荐</string>

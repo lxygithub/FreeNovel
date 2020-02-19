@@ -4,15 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import cn.mewlxy.novel.R
-import cn.mewlxy.novel.constant.Constant
+import cn.mewlxy.novel.constant.Const
 import cn.mewlxy.novel.permissions.PermissionUtil
 import pub.devrel.easypermissions.AfterPermissionGranted
 import pub.devrel.easypermissions.AppSettingsDialog
@@ -41,13 +39,17 @@ abstract class BaseActivity : AppCompatActivity(), LifecycleOwner, PermissionUti
     }
 
     fun showLoading() {
-        val decorView = (window.decorView as ViewGroup)
-        decorView.addView(loadingView)
+        val decorView = (window?.decorView as ViewGroup)
+        if (loadingView.parent != decorView) {
+            decorView.addView(loadingView)
+        }
     }
 
     fun dismissLoading() {
-        val decorView = (window.decorView as ViewGroup)
-        decorView.removeView(loadingView)
+        val decorView = (window?.decorView as ViewGroup)
+        if (loadingView.parent == decorView) {
+            decorView.removeView(loadingView)
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -78,7 +80,7 @@ abstract class BaseActivity : AppCompatActivity(), LifecycleOwner, PermissionUti
         return EasyPermissions.hasPermissions(this, *perms)
     }
 
-    @AfterPermissionGranted(Constant.PERMISSION_REQUEST_CODE)
+    @AfterPermissionGranted(Const.PERMISSION_REQUEST_CODE)
     private fun getPerms() {
         if (perms.isNotEmpty()) {
             if (EasyPermissions.hasPermissions(this, *perms)) {
@@ -86,7 +88,7 @@ abstract class BaseActivity : AppCompatActivity(), LifecycleOwner, PermissionUti
                 permissionsGranted()
             } else { // Do not have permissions, request them now
                 EasyPermissions.requestPermissions(
-                        PermissionRequest.Builder(this, Constant.PERMISSION_REQUEST_CODE, *perms)
+                        PermissionRequest.Builder(this, Const.PERMISSION_REQUEST_CODE, *perms)
                                 .setRationale(rationale)
                                 .setPositiveButtonText("允许")
                                 .setNegativeButtonText("取消")

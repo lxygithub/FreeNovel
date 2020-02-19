@@ -11,6 +11,6 @@ interface Source {
         /**
          * 全本小说网
          */
-        public const val QUANBEN = "http://www.quanwenyuedu.io"
+        const val QUANBEN = "http://www.quanwenyuedu.io"
     }
 }

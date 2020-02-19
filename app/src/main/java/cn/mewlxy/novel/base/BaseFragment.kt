@@ -33,12 +33,16 @@ abstract class BaseFragment : androidx.fragment.app.Fragment(), LifecycleOwner {
 
     fun showLoading() {
         val decorView = (activity?.window?.decorView as ViewGroup)
-        decorView.addView(loadingView)
+        if (loadingView.parent != decorView) {
+            decorView.addView(loadingView)
+        }
     }
 
     fun dismissLoading() {
         val decorView = (activity?.window?.decorView as ViewGroup)
-        decorView.removeView(loadingView)
+        if (loadingView.parent == decorView) {
+            decorView.removeView(loadingView)
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)

@@ -2,6 +2,7 @@ package cn.mewlxy.novel.jsoup
 
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import cn.mewlxy.novel.constant.Const
 import kotlinx.coroutines.*
 import org.jsoup.Connection
 import org.jsoup.Jsoup
@@ -21,7 +22,7 @@ class DomSoup : DefaultLifecycleObserver {
         listener.start()
         uiScope.launch(Dispatchers.IO) {
             try {
-                val document: Document = Jsoup.connect(url).userAgent(UA).header("Host", "www.quanwenyuedu.io")
+                val document: Document = Jsoup.connect(url).userAgent(UA).header("Host", Const.HOST)
                         .maxBodySize(0).timeout(60 * 1000).get()
                 launch(Dispatchers.Main) {
                     listener.success(document)
@@ -42,7 +43,7 @@ class DomSoup : DefaultLifecycleObserver {
                 val response: Connection.Response = Jsoup.connect(url)
                         .userAgent(UA).method(Connection.Method.GET)
                         .referrer(refrrer)
-                        .header("Host", "www.quanwenyuedu.io")
+                        .header("Host", Const.HOST)
                         .maxBodySize(0).timeout(60 * 1000).execute()
                 launch(Dispatchers.Main) {
                     listener.success(response)

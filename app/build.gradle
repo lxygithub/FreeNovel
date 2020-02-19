@@ -35,6 +35,16 @@ android {
     }
     buildToolsVersion = '28.0.3'
 
+    signingConfigs {
+
+        release {
+            storeFile file('free_novel.jks')
+            storePassword "sex2019"
+            keyAlias "meizi"
+            keyPassword "sex2019"
+        }
+    }
+
 }
 kotlin {
     experimental {
@@ -84,7 +94,6 @@ dependencies {
 
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
-
 
 
     implementation project(path: ':readerlib')

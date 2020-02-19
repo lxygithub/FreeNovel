@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import cn.mewlxy.novel.R
 import cn.mewlxy.novel.adapter.TypesAdapter
 import cn.mewlxy.novel.base.BaseFragment
@@ -23,7 +24,7 @@ import org.jsoup.nodes.Document
  *
  */
 
-class SquareFragment private constructor() : BaseFragment(), View.OnClickListener, OnItemViewClickListener<BookModel> {
+class SquareFragment private constructor() : BaseFragment(), View.OnClickListener, OnItemViewClickListener<BookModel>, SwipeRefreshLayout.OnRefreshListener {
     private val bookModels = ArrayList<BookModel>()
     private lateinit var typesAdapter: TypesAdapter
     private var domSoup = DomSoup()
@@ -42,6 +43,8 @@ class SquareFragment private constructor() : BaseFragment(), View.OnClickListene
     override fun initView() {
         rv_types.layoutManager = LinearLayoutManager(activity)
         tv_search.setOnClickListener(this)
+        refresh_layout.setColorSchemeResources(R.color.colorAccent)
+        refresh_layout.setOnRefreshListener(this)
     }
 
     override fun initData() {
@@ -50,13 +53,24 @@ class SquareFragment private constructor() : BaseFragment(), View.OnClickListene
         rv_types.adapter = typesAdapter
         typesAdapter.onItemViewClickListener = this
 
+        requestData()
+    }
+
+    private fun requestData(refresh: Boolean = false) {
         domSoup.getSoup(Source.QUANBEN, object : OnJSoupListener {
             override fun start() {
-                showLoading()
+                if (!refresh) {
+                    showLoading()
+                }
             }
 
             override fun success(document: Document) {
-                dismissLoading()
+                if (!refresh) {
+                    dismissLoading()
+                } else {
+                    refresh_layout.isRefreshing = false
+                    bookModels.clear()
+                }
                 val typeUrls = document.body().getElementsByClass("nav")[0].getElementsByTag("a")
                 val typeRecommendBooks = document.body().getElementsByClass("box")
                 val pairs = typeUrls.zip(typeRecommendBooks)
@@ -79,7 +93,11 @@ class SquareFragment private constructor() : BaseFragment(), View.OnClickListene
             }
 
             override fun failed(errMsg: String) {
-                dismissLoading()
+                if (!refresh) {
+                    dismissLoading()
+                } else {
+                    refresh_layout.isRefreshing = false
+                }
                 showToast(errMsg)
             }
         })
@@ -108,6 +126,10 @@ class SquareFragment private constructor() : BaseFragment(), View.OnClickListene
             }
         }
 
+    }
+
+    override fun onRefresh() {
+        requestData(true)
     }
 
 }

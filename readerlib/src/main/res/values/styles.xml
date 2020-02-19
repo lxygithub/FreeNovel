@@ -19,27 +19,7 @@
     <attr name="smallColor" format="reference"/>
 
 
-    <declare-styleable name="HeadLayout">
-        <attr name="showHead" format="boolean" />
-        <attr name="headText" format="reference" />
-        <attr name="headImg" format="reference" />
-        <attr name="rightText" format="reference" />
-        <attr name="showRightText" format="boolean" />
-        <attr name="rightImg" format="reference" />
 
-    </declare-styleable>
-
-    <declare-styleable name="VpTabLayout">
-        <attr name="oneText" format="reference"/>
-        <attr name="twoText" format="reference"/>
-        <attr name="threeText" format="reference"/>
-    </declare-styleable>
-
-    <declare-styleable name="RefreshLayout">
-        <attr name="layout_refresh_empty" format="reference"/>
-        <attr name="layout_refresh_error" format="reference"/>
-        <attr name="layout_refresh_loading" format="reference"/>
-    </declare-styleable>
 
     <style name="dialog" parent="@android:style/Theme.Dialog">
         <item name="android:windowFrame">@null</item>
