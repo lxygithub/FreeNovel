@@ -40,19 +40,19 @@ kotlin_coroutines 1.3.3
 ## 预览
 
 <div id='wrap', display='flex';>
-    <img src="device-2020-02-20-141340.png" width = "270" height = "480"  />
-    <img src="device-2020-02-20-141405.png" width = "270" height = "480"/>
-    <img src="device-2020-02-20-141420.png" width = "270" height = "480"/>
-    <img src="device-2020-02-20-141452.png" width = "270" height = "480"   />
-    <img src="device-2020-02-20-141504.png" width = "270" height = "480"   />
-    <img src="device-2020-02-20-141601.png" width = "270" height = "480"   />
-    <img src="device-2020-02-20-141616.png" width = "270" height = "480"   />
-    <img src="device-2020-02-20-141635.png" width = "270" height = "480"   />
-    <img src="device-2020-02-20-141705.png" width = "270" height = "480"   />
-    <img src="device-2020-02-20-141719.png" width = "270" height = "480"   />
-    <img src="device-2020-02-20-141733.png" width = "270" height = "480"   />
-    <img src="device-2020-02-20-141804.png" width = "270" height = "480"  />
-    <img src="device-2020-02-20-141818.png" width = "270" height = "480" />
+    <img src="screenshots/device-2020-02-20-141340.png" width = "270" height = "480"/>
+    <img src="screenshots/device-2020-02-20-141405.png" width = "270" height = "480"/>
+    <img src="screenshots/device-2020-02-20-141420.png" width = "270" height = "480"/>
+    <img src="screenshots/device-2020-02-20-141452.png" width = "270" height = "480"   />
+    <img src="screenshots/device-2020-02-20-141504.png" width = "270" height = "480"   />
+    <img src="screenshots/device-2020-02-20-141601.png" width = "270" height = "480"   />
+    <img src="screenshots/device-2020-02-20-141616.png" width = "270" height = "480"   />
+    <img src="screenshots/device-2020-02-20-141635.png" width = "270" height = "480"   />
+    <img src="screenshots/device-2020-02-20-141705.png" width = "270" height = "480"   />
+    <img src="screenshots/device-2020-02-20-141719.png" width = "270" height = "480"   />
+    <img src="screenshots/device-2020-02-20-141733.png" width = "270" height = "480"   />
+    <img src="screenshots/device-2020-02-20-141804.png" width = "270" height = "480"  />
+    <img src="screenshots/device-2020-02-20-141818.png" width = "270" height = "480" />
 </div>
 
 
