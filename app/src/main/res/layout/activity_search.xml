@@ -31,18 +31,23 @@
             android:layout_weight="1"
             android:background="@drawable/shape_bg_oval"
             android:hint="输入 书名、作者"
-            android:textSize="14dp"
             android:imeOptions="actionSearch"
             android:inputType="text"
             android:maxLines="1"
             android:paddingLeft="15dp"
-            android:paddingRight="15dp" />
+            android:paddingRight="15dp"
+            android:textSize="14dp" />
 
 
     </LinearLayout>
 
+    <include
+        android:id="@+id/view_search_history"
+        layout="@layout/layout_search_history" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_search_result"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 </LinearLayout>
