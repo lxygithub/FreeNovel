@@ -58,7 +58,7 @@ kotlin_coroutines 1.3.3
 
 ## 下载体验
 
-[](screenshots/ic_launcher.png)
+![logo](screenshots/ic_launcher.png)
 [app/release/app-release.apk](app/release/app-release.apk)
 
 ## 声明
