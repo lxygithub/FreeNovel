@@ -1,9 +1,6 @@
 package com.mewlxy.readlib.utlis;
 
-import android.os.Environment;
-
 import com.mewlxy.readlib.base.ContextProvider;
-
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -58,15 +55,8 @@ public class FileUtils {
 
     //获取Cache文件夹
     public static String getDownloadPath() {
-        if (isSdCardExist()) {
-            return ContextProvider.Companion.getMContext()
-                    .getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-                    .getAbsolutePath();
-        } else {
-            return ContextProvider.Companion.getMContext()
-                    .getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-                    .getAbsolutePath();
-        }
+        return ContextProvider.Companion.getMContext()
+                .getCacheDir().getAbsolutePath();
     }
 
     public static long getDirSize(File file) {
@@ -129,13 +119,6 @@ public class FileUtils {
         return sb.toString();
     }
 
-    //判断是否挂载了SD卡
-    private static boolean isSdCardExist() {
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            return true;
-        }
-        return false;
-    }
 
     //递归删除文件夹下的数据
     public static synchronized void deleteFile(String filePath) {

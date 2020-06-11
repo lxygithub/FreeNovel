@@ -46,12 +46,6 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     }
 
     override fun initData() {
-        if (!hasPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE))) {
-            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), "应用需要获取手机存储权限，请点击允许")
-        }
-    }
-
-    override fun permissionsGranted() {
         if (!File(Constant.BOOK_CACHE_PATH).exists()) {
             File(Constant.BOOK_CACHE_PATH).mkdir()
         }

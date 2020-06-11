@@ -36,7 +36,8 @@
                     android:layout_height="50dp"
                     android:layout_gravity="end"
                     android:layout_marginEnd="10dp"
-                    android:background="@color/read_menu_color">
+                    android:background="@color/read_menu_color"
+                    android:layout_marginRight="10dp">
 
                     <TextView
                         android:id="@+id/read_tv_brief"
@@ -47,7 +48,10 @@
                         android:drawableStart="@drawable/ic_book_detail"
                         android:drawablePadding="10dp"
                         android:gravity="center"
-                        android:text="@string/brief" />
+                        android:text="@string/brief"
+                        android:layout_marginRight="10dp"
+                        android:layout_toLeftOf="@id/read_tv_community"
+                        android:drawableLeft="@drawable/ic_book_detail" />
 
                     <TextView
                         android:id="@+id/read_tv_community"
@@ -57,7 +61,9 @@
                         android:drawableStart="@drawable/ic_label"
                         android:drawablePadding="10dp"
                         android:gravity="center"
-                        android:text="@string/label" />
+                        android:text="@string/label"
+                        android:layout_alignParentRight="true"
+                        android:drawableLeft="@drawable/ic_label" />
                 </RelativeLayout>
             </androidx.appcompat.widget.Toolbar>
         </com.google.android.material.appbar.AppBarLayout>
@@ -169,7 +175,8 @@
             android:layout_marginBottom="8dp"
             android:text="@string/contents"
             android:textColor="@color/black"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:layout_marginLeft="15dp" />
         <!--   这里用ListView是因为它带有旁边的滚动条,加RelativeLayout是解决ListView偶尔无法滚动问题    -->
         <RelativeLayout
             android:layout_width="match_parent"
